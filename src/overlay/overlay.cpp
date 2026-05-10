@@ -1,5 +1,10 @@
 #include "overlay/overlay.hpp"
 
+#ifdef _WIN32
+#include "rendering/dx11_renderer.hpp"
+#include "overlay/overlay_window.hpp"
+#endif
+
 Overlay::~Overlay() {
     stop();
 }
@@ -25,11 +30,33 @@ bool Overlay::initialize(const Config& cfg) {
         return false;
     }
     
-    // Create renderer
-    renderer = std::make_shared<OverlayRenderer>();
-    if (!renderer || !renderer->initialize(config.window_width, config.window_height)) {
+    // Create renderer - use DirectX 11 on Windows
+#ifdef _WIN32
+    auto dx11_renderer = std::make_shared<DirectX11Renderer>();
+    
+    // Create overlay window
+    auto overlay_window = std::make_shared<OverlayWindow>();
+    if (!overlay_window->create(config.window_width, config.window_height, config.window_title)) {
         return false;
     }
+    
+    // Set window handle for DirectX rendering
+    dx11_renderer->set_window_handle(overlay_window->get_handle());
+    
+    // Initialize renderer
+    if (!dx11_renderer->initialize(config.window_width, config.window_height)) {
+        return false;
+    }
+    
+    renderer = dx11_renderer;
+    overlay_win = overlay_window;
+#else
+    // Fallback to mock renderer on non-Windows platforms
+    renderer = std::make_shared<OverlayRenderer>();
+    if (!renderer->initialize(config.window_width, config.window_height)) {
+        return false;
+    }
+#endif
     
     // Create entity manager
     entity_manager = std::make_shared<EntityManager>(game_memory, renderer);
@@ -46,6 +73,17 @@ void Overlay::run() {
     }
     
     while (running) {
+#ifdef _WIN32
+        // Process window messages
+        if (overlay_win) {
+            overlay_win->process_messages();
+            if (!overlay_win->is_active()) {
+                running = false;
+                break;
+            }
+        }
+#endif
+        
         // Update entity data
         if (entity_manager) {
             entity_manager->update();

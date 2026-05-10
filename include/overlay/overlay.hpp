@@ -8,6 +8,11 @@
 #include "entity/entity_manager.hpp"
 #include "rendering/renderer.hpp"
 
+#ifdef _WIN32
+class OverlayWindow;
+using OverlayWindowPtr = std::shared_ptr<OverlayWindow>;
+#endif
+
 /**
  * Main overlay application class
  */
@@ -60,6 +65,10 @@ private:
     GameMemoryPtr game_memory;
     RendererPtr renderer;
     EntityManagerPtr entity_manager;
+    
+#ifdef _WIN32
+    OverlayWindowPtr overlay_win;
+#endif
     
     std::atomic<bool> running{false};
     RenderCallback custom_render;

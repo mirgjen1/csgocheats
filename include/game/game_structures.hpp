@@ -5,19 +5,23 @@
 
 /**
  * Game memory offsets for CS2
- * Note: These are EXAMPLE offsets and may vary based on game version
+ * Source: https://github.com/frk1/hazedumper
+ * Last updated: May 2026
+ * 
+ * Note: These are community-maintained offsets and may change with game updates.
+ * If offsets stop working, check the hazedumper repository for updates.
  */
 namespace offsets {
-    // Entity list offsets
-    constexpr uintptr_t ENTITY_LIST = 0x1A8C690;
-    constexpr uintptr_t LOCAL_PLAYER = 0x1A8A6D8;
+    // Entity list offsets (from hazedumper)
+    constexpr uintptr_t ENTITY_LIST = 0x4E00DAC;      // dwEntityList
+    constexpr uintptr_t LOCAL_PLAYER = 0xDEA8FC;      // dwLocalPlayer
     
-    // Player data offsets
-    constexpr uintptr_t PLAYER_POSITION = 0x1344;
-    constexpr uintptr_t PLAYER_HEALTH = 0x324;
-    constexpr uintptr_t PLAYER_TEAM = 0x3C0;
-    constexpr uintptr_t PLAYER_NAME = 0x588;
-    constexpr uintptr_t PLAYER_BONE_MATRIX = 0x1080;
+    // Player data offsets (netvars from hazedumper)
+    constexpr uintptr_t PLAYER_POSITION = 0x138;      // m_vecOrigin
+    constexpr uintptr_t PLAYER_HEALTH = 0x100;        // m_iHealth
+    constexpr uintptr_t PLAYER_TEAM = 0xF4;           // m_iTeamNum
+    constexpr uintptr_t PLAYER_NAME = 0x588;          // (keep as-is if not in hazedumper)
+    constexpr uintptr_t PLAYER_BONE_MATRIX = 0x26A8;  // m_dwBoneMatrix
     
     // Bone positions for AABB
     constexpr uintptr_t BONE_HEAD = 6;

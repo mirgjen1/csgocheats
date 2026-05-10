@@ -8,10 +8,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(cs2overlay
     src/main.cpp
     src/overlay/overlay.cpp
+    src/overlay/overlay_window.cpp
     src/memory/memory_reader.cpp
     src/memory/game_memory.cpp
     src/rendering/renderer.cpp
     src/rendering/primitives.cpp
+    src/rendering/dx11_renderer.cpp
     src/entity/entity_manager.cpp
 )
 
@@ -23,5 +25,11 @@ target_include_directories(cs2overlay PRIVATE
 if(UNIX AND NOT APPLE)
     target_link_libraries(cs2overlay PRIVATE X11)
 elseif(WIN32)
-    target_link_libraries(cs2overlay PRIVATE User32 Gdi32)
+    target_link_libraries(cs2overlay PRIVATE 
+        User32 
+        Gdi32 
+        d3d11 
+        dxgi 
+        d3dcompiler
+    )
 endif()
