@@ -12,15 +12,15 @@
  * If offsets stop working, check the hazedumper repository for updates.
  */
 namespace offsets {
-    // Entity list offsets (from hazedumper)
-    constexpr uintptr_t ENTITY_LIST = 0x4E00DAC;      // dwEntityList
-    constexpr uintptr_t LOCAL_PLAYER = 0xDEA8FC;      // dwLocalPlayer
+    // Entity list offsets (from hazedumper - updated 2023-09-05)
+    constexpr uintptr_t ENTITY_LIST = 0x4E0102C;      // dwEntityList
+    constexpr uintptr_t LOCAL_PLAYER = 0xDEB99C;      // dwLocalPlayer
     
     // Player data offsets (netvars from hazedumper)
     constexpr uintptr_t PLAYER_POSITION = 0x138;      // m_vecOrigin
     constexpr uintptr_t PLAYER_HEALTH = 0x100;        // m_iHealth
     constexpr uintptr_t PLAYER_TEAM = 0xF4;           // m_iTeamNum
-    constexpr uintptr_t PLAYER_NAME = 0x588;          // (keep as-is if not in hazedumper)
+    constexpr uintptr_t PLAYER_NAME = 0x304C;         // m_szCustomName
     constexpr uintptr_t PLAYER_BONE_MATRIX = 0x26A8;  // m_dwBoneMatrix
     
     // Bone positions for AABB
