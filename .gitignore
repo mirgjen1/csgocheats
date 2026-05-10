@@ -1,0 +1,56 @@
+# Build directories
+build/
+cmake-build-debug/
+cmake-build-release/
+out/
+
+# Compiled objects
+*.o
+*.obj
+*.a
+*.lib
+*.dll
+*.so
+*.dylib
+
+# Executables
+cs2overlay
+cs2overlay.exe
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.vcxproj
+*.vcxproj.filters
+*.sln
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Debug symbols
+*.pdb
+*.dSYM/
+
+# Temporary files
+*.tmp
+*.log
+*.bak
+
+# OS-specific
+Thumbs.db
+.directory
+
+# Python/Testing
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Dependency downloads
+vcpkg_installed/
