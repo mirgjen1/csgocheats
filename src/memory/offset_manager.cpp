@@ -78,10 +78,20 @@ bool OffsetManager::initialize(pid_t pid) {
         fprintf(stdout, "[OffsetManager] Found view_matrix in %s: 0x%lx\n", found_client.c_str(), current_offsets.view_matrix);
     }
 
-    ready = (current_offsets.local_player != 0 && current_offsets.entity_list != 0);
-    if (!ready) {
-        fprintf(stderr, "[OffsetManager] Failed to find essential offsets!\n");
+    // Apply discovered fallbacks if patterns failed
+    if (current_offsets.local_player == 0) {
+        fprintf(stdout, "[OffsetManager] Falling back to hardcoded local_player: 0x22eceb0\n");
+        current_offsets.local_player = 0x22eceb0;
     }
-    
-    return ready;
+    if (current_offsets.entity_list == 0) {
+        fprintf(stdout, "[OffsetManager] Falling back to hardcoded entity_list: 0x6d9eef8\n");
+        current_offsets.entity_list = 0x6d9eef8;
+    }
+    if (current_offsets.view_matrix == 0) {
+        fprintf(stdout, "[OffsetManager] Falling back to hardcoded view_matrix: 0x2c83fa8\n");
+        current_offsets.view_matrix = 0x2c83fa8;
+    }
+
+    ready = true;
+    return true;
 }

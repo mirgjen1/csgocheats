@@ -44,7 +44,7 @@ int main() {
         renderer->draw_circle(center, 5.0f, Color(0, 255, 0, 255));
         
         // Draw info text
-        renderer->draw_text(Vector2(10, 10), "CS2 Overlay - Press Q to exit", Color(255, 255, 255, 255));
+        renderer->draw_text(Vector2(10, 10), "CS:GO Legacy Overlay - Press any key in console to exit", Color(255, 255, 255, 255));
     });
     
     // Run overlay in background thread
@@ -70,8 +70,8 @@ int main() {
         std::this_thread::sleep_for(std::chrono::milliseconds(16));
         frame_count++;
         
-        // Exit after 10 seconds for demo
-        if (frame_count > 600) {
+        // Exit after a long time or if game closes
+        if (frame_count > 100000) {
             overlay->stop();
         }
     }

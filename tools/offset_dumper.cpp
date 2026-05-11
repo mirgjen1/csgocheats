@@ -161,9 +161,54 @@ void parse_pattern(const std::string& sig_str, std::vector<uint8_t>& bytes, std:
     }
 }
 
+// Scan a file on disk for a pattern
+uintptr_t scan_file(const std::string& path, const std::string& sig_str, const char* label) {
+    std::vector<uint8_t> pattern;
+    std::vector<uint8_t> mask;
+    parse_pattern(sig_str, pattern, mask);
+    
+    std::ifstream file(path, std::ios::binary);
+    if (!file) return 0;
+    
+    file.seekg(0, std::ios::end);
+    size_t size = file.tellg();
+    file.seekg(0, std::ios::beg);
+    
+    std::vector<uint8_t> data(size);
+    file.read((char*)data.data(), size);
+    
+    ssize_t pos = scan_pattern(data.data(), data.size(), 
+                                pattern.data(), mask.data(), pattern.size());
+    if (pos >= 0) {
+        printf("  [DISK]  %s pattern match in %s at offset 0x%lx\n", 
+               label, path.c_str(), (long)pos);
+        return (uintptr_t)pos;
+    }
+    
+    return 0;
+}
+
+// Read from memory or file fallback
+bool read_data(int mem_fd, const std::string& path, uintptr_t addr, uintptr_t base, void* buf, size_t sz) {
+    if (mem_fd != -1) {
+        return read_mem(mem_fd, addr, buf, sz);
+    }
+    
+    // Fallback to file
+    std::ifstream file(path, std::ios::binary);
+    if (!file) return false;
+    file.seekg(addr - base);
+    file.read((char*)buf, sz);
+    return (bool)file;
+}
+
 // Scan process memory for a pattern, return absolute address of match
-uintptr_t scan_memory(int mem_fd, uintptr_t base, size_t size, 
+uintptr_t scan_memory(int mem_fd, const ModuleInfo* mod, 
                        const std::string& sig_str, const char* label) {
+    if (mod == nullptr) return 0;
+    uintptr_t base = mod->base;
+    size_t size = mod->size;
+    
     std::vector<uint8_t> pattern;
     std::vector<uint8_t> mask;
     parse_pattern(sig_str, pattern, mask);
@@ -174,7 +219,7 @@ uintptr_t scan_memory(int mem_fd, uintptr_t base, size_t size,
         size_t read_size = std::min(chunk_size + pattern.size(), size - offset);
         std::vector<uint8_t> chunk(read_size);
         
-        if (!read_mem(mem_fd, base + offset, chunk.data(), read_size)) {
+        if (!read_data(mem_fd, mod->path, base + offset, base, chunk.data(), read_size)) {
             continue;
         }
         
@@ -193,9 +238,9 @@ uintptr_t scan_memory(int mem_fd, uintptr_t base, size_t size,
 }
 
 // Resolve RIP-relative address
-uintptr_t resolve_rip_relative(int mem_fd, uintptr_t instruction_addr, int operand_offset) {
+uintptr_t resolve_rip_relative(int mem_fd, const std::string& path, uintptr_t base, uintptr_t instruction_addr, int operand_offset) {
     int32_t rel;
-    if (!read_mem(mem_fd, instruction_addr + operand_offset, &rel, sizeof(rel))) {
+    if (!read_data(mem_fd, path, instruction_addr + operand_offset, base, &rel, sizeof(rel))) {
         return 0;
     }
     // RIP-relative: target = instruction_addr + operand_offset + 4 + rel
@@ -217,8 +262,8 @@ int main() {
     snprintf(mem_path, sizeof(mem_path), "/proc/%d/mem", pid);
     int mem_fd = open(mem_path, O_RDONLY);
     if (mem_fd == -1) {
-        fprintf(stderr, "ERROR: Cannot open %s (run with sudo)\n", mem_path);
-        return 1;
+        printf("WARNING: Cannot open %s (run with sudo to scan memory directly).\n", mem_path);
+        printf("Will attempt to scan .so files on disk instead.\n\n");
     }
     
     // Load modules
@@ -278,13 +323,13 @@ int main() {
     
     uintptr_t lp_match = 0;
     for (const auto& pat : lp_patterns) {
-        lp_match = scan_memory(mem_fd, client->base, client->size, pat, "dwLocalPlayer");
+        lp_match = scan_memory(mem_fd, client, pat, "dwLocalPlayer");
         if (lp_match) break;
     }
     
     uintptr_t dwLocalPlayer = 0;
     if (lp_match) {
-        dwLocalPlayer = resolve_rip_relative(mem_fd, lp_match, 3);
+        dwLocalPlayer = resolve_rip_relative(mem_fd, client->path, client->base, lp_match, 3);
         printf("  => dwLocalPlayer absolute: 0x%lx (relative to client: 0x%lx)\n", 
                dwLocalPlayer, dwLocalPlayer - client->base);
         
@@ -311,13 +356,13 @@ int main() {
     
     uintptr_t el_match = 0;
     for (const auto& pat : el_patterns) {
-        el_match = scan_memory(mem_fd, client->base, client->size, pat, "dwEntityList");
+        el_match = scan_memory(mem_fd, client, pat, "dwEntityList");
         if (el_match) break;
     }
     
     uintptr_t dwEntityList = 0;
     if (el_match) {
-        dwEntityList = resolve_rip_relative(mem_fd, el_match, 3);
+        dwEntityList = resolve_rip_relative(mem_fd, client->path, client->base, el_match, 3);
         printf("  => dwEntityList absolute: 0x%lx (relative to client: 0x%lx)\n",
                dwEntityList, dwEntityList - client->base);
         
@@ -341,7 +386,7 @@ int main() {
     
     uintptr_t vm_match = 0;
     for (const auto& pat : vm_patterns) {
-        vm_match = scan_memory(mem_fd, client->base, client->size, pat, "dwViewMatrix");
+        vm_match = scan_memory(mem_fd, client, pat, "dwViewMatrix");
         if (vm_match) break;
     }
     
@@ -349,14 +394,15 @@ int main() {
     if (!vm_match && engine) {
         printf("  Trying engine module...\n");
         for (const auto& pat : vm_patterns) {
-            vm_match = scan_memory(mem_fd, engine->base, engine->size, pat, "dwViewMatrix(engine)");
+            vm_match = scan_memory(mem_fd, engine, pat, "dwViewMatrix(engine)");
             if (vm_match) break;
         }
     }
     
     uintptr_t dwViewMatrix = 0;
     if (vm_match) {
-        dwViewMatrix = resolve_rip_relative(mem_fd, vm_match, 3);
+        const ModuleInfo* mod = (vm_match >= client->base && vm_match < client->end) ? client : engine;
+        dwViewMatrix = resolve_rip_relative(mem_fd, mod->path, mod->base, vm_match, 3);
         uintptr_t base = (vm_match >= client->base && vm_match < client->end) ? client->base : 
                          (engine ? engine->base : 0);
         printf("  => dwViewMatrix absolute: 0x%lx (relative: 0x%lx)\n",

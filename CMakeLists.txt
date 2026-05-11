@@ -14,7 +14,6 @@ set(SOURCES
     src/memory/offset_manager.cpp
     src/memory/signature_scanner.cpp
     src/rendering/renderer.cpp
-    src/rendering/visualizer.cpp
     src/rendering/primitives.cpp
     src/rendering/dx11_renderer.cpp
     src/entity/entity_manager.cpp
