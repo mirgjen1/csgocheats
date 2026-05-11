@@ -13,13 +13,23 @@
  * If offsets stop working, check the hazedumper repository for updates.
  */
 namespace offsets {
+<<<<<<< HEAD
     // Verified CS:GO Legacy (Source 1) Linux 64-bit offsets
     // Note: These are relative to their respective modules (client_client.so)
+=======
+    // Entity list offsets (from hazedumper - updated 2023-09-05)
+    constexpr uintptr_t ENTITY_LIST = 0x4E0102C;      // dwEntityList
+    constexpr uintptr_t LOCAL_PLAYER = 0xDEB99C;      // dwLocalPlayer
+>>>>>>> d03621e9466965c376953a8b4e61791aa78af68d
     
     // Static Netvars (These rarely change in Legacy)
     constexpr uintptr_t PLAYER_POSITION = 0x138;      // m_vecOrigin
     constexpr uintptr_t PLAYER_HEALTH = 0x100;        // m_iHealth
     constexpr uintptr_t PLAYER_TEAM = 0xF4;           // m_iTeamNum
+<<<<<<< HEAD
+=======
+    constexpr uintptr_t PLAYER_NAME = 0x304C;         // m_szCustomName
+>>>>>>> d03621e9466965c376953a8b4e61791aa78af68d
     constexpr uintptr_t PLAYER_BONE_MATRIX = 0x26A8;  // m_dwBoneMatrix
     
     // Bone indices for CS:GO Legacy
