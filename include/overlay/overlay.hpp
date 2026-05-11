@@ -22,6 +22,7 @@ public:
         uint32_t window_width = 1920;
         uint32_t window_height = 1080;
         const char* window_title = "CS2 Overlay";
+        const char* process_name = "cs2";
         EntityManager::Config entity_config;
     };
     

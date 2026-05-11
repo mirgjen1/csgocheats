@@ -8,7 +8,7 @@
  */
 
 int main() {
-    std::cout << "=== CS2 Overlay Framework ===" << std::endl;
+    std::cout << "=== CS:GO Legacy Overlay Framework ===" << std::endl;
     std::cout << "Initializing overlay system..." << std::endl;
     
     // Create overlay with configuration
@@ -17,7 +17,8 @@ int main() {
     Overlay::Config config;
     config.window_width = 1920;
     config.window_height = 1080;
-    config.window_title = "CS2 Overlay";
+    config.window_title = "CS:GO Legacy Overlay";
+    config.process_name = "csgo_linux64"; // CS:GO Legacy process name on Linux
     
     // Configure entity rendering
     config.entity_config.render_aabb = true;
@@ -28,7 +29,7 @@ int main() {
     config.entity_config.update_interval_ms = 16.0f; // 60 FPS
     
     if (!overlay->initialize(config)) {
-        std::cerr << "Failed to initialize overlay!" << std::endl;
+        std::cerr << "Failed to initialize overlay! (Is CS:GO Legacy running?)" << std::endl;
         return 1;
     }
     

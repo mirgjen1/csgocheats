@@ -59,6 +59,8 @@ private:
      * Get entity pointer from entity list
      */
     uintptr_t get_entity_from_list(uint32_t index);
+    
+    uintptr_t client_base = 0;
 };
 
 using GameMemoryPtr = std::shared_ptr<GameMemory>;

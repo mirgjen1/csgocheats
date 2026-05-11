@@ -82,27 +82,13 @@ public:
     size_t read_memory(uintptr_t address, void* buffer, size_t size) override;
     
     /**
-     * Try to find offsets dynamically using signature scanning
+     * Get base address of a loaded module
      */
-    bool find_offsets();
-    
-    /**
-     * Get current entity list offset (may be dynamically found)
-     */
-    uintptr_t get_entity_list_offset() const { return entity_list_offset; }
-    
-    /**
-     * Get current local player offset (may be dynamically found)
-     */
-    uintptr_t get_local_player_offset() const { return local_player_offset; }
+    uintptr_t get_module_base(const char* module_name);
     
 private:
     int mem_fd = -1;
-    SignatureScannerPtr scanner;
-    
-    // Dynamic offsets found by scanning
-    uintptr_t entity_list_offset = 0;
-    uintptr_t local_player_offset = 0;
+    std::shared_ptr<SignatureScanner> scanner;
     
     /**
      * Helper to find process ID by name

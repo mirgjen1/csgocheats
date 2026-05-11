@@ -13,33 +13,54 @@ class SignatureScanner {
 public:
     /**
      * Pattern definition with wildcards
-     * Example: "55 8B EC 83 EC ?? 53 56" - ? is wildcard
+     * Example: "48 8B 05 ?? ?? ?? ??" - IDA style
      */
     struct Pattern {
         std::string signature;
-        std::string mask;  // 'x' for match, '?' for wildcard
-        int offset;        // Offset from pattern start to return
+        int offset;        // Offset from pattern start to extract value
+        bool relative;     // Whether the address is RIP-relative (common on x64)
         
-        Pattern(const std::string& sig, const std::string& m, int off = 0)
-            : signature(sig), mask(m), offset(off) {}
+        Pattern(const std::string& sig, int off = 0, bool rel = false)
+            : signature(sig), offset(off), relative(rel) {}
+    };
+
+    /**
+     * Module information parsed from /proc/pid/maps
+     */
+    struct ModuleInfo {
+        uintptr_t base;
+        uintptr_t end;
+        size_t size;
+        std::string path;
+        std::string name;
     };
     
     explicit SignatureScanner(pid_t pid);
     
     /**
-     * Scan memory for pattern
-     * Returns address of pattern or 0 if not found
+     * Load module information from /proc/pid/maps
      */
-    uintptr_t find_pattern(const Pattern& pattern, uintptr_t start = 0, size_t range = 0);
+    bool load_modules();
     
     /**
-     * Scan for pattern and read offset
+     * Find pattern in a specific module
      */
-    uintptr_t read_pattern(const Pattern& pattern, uintptr_t start = 0, size_t range = 0);
+    uintptr_t find_pattern(const std::string& module_name, const Pattern& pattern);
+
+    /**
+     * Get module by name
+     */
+    const ModuleInfo* get_module(const std::string& name) const;
+
+    /**
+     * Low-level pattern finding
+     */
+    uintptr_t find_pattern(const Pattern& pattern, uintptr_t start, size_t range);
     
 private:
     pid_t process_id;
     int mem_fd;
+    std::vector<ModuleInfo> modules;
     
     // Read chunk of memory
     std::vector<uint8_t> read_memory_chunk(uintptr_t address, size_t size);

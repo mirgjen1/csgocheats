@@ -13,40 +13,36 @@
  * If offsets stop working, check the hazedumper repository for updates.
  */
 namespace offsets {
-    // Entity list offsets (from hazedumper)
-    constexpr uintptr_t ENTITY_LIST = 0x4E00DAC;      // dwEntityList
-    constexpr uintptr_t LOCAL_PLAYER = 0xDEA8FC;      // dwLocalPlayer
+    // Verified CS:GO Legacy (Source 1) Linux 64-bit offsets
+    // Note: These are relative to their respective modules (client_client.so)
     
-    // Player data offsets (netvars from hazedumper)
+    // Static Netvars (These rarely change in Legacy)
     constexpr uintptr_t PLAYER_POSITION = 0x138;      // m_vecOrigin
     constexpr uintptr_t PLAYER_HEALTH = 0x100;        // m_iHealth
     constexpr uintptr_t PLAYER_TEAM = 0xF4;           // m_iTeamNum
-    constexpr uintptr_t PLAYER_NAME = 0x588;          // (keep as-is if not in hazedumper)
     constexpr uintptr_t PLAYER_BONE_MATRIX = 0x26A8;  // m_dwBoneMatrix
     
-    // Bone positions for AABB
-    constexpr uintptr_t BONE_HEAD = 6;
-    constexpr uintptr_t BONE_NECK = 5;
-    constexpr uintptr_t BONE_CHEST = 10;
-    constexpr uintptr_t BONE_PELVIS = 0;
-    constexpr uintptr_t BONE_LEFT_FOOT = 12;
-    constexpr uintptr_t BONE_RIGHT_FOOT = 11;
+    // Bone indices for CS:GO Legacy
+    constexpr uint32_t BONE_HEAD = 8;
+    constexpr uint32_t BONE_NECK = 7;
+    constexpr uint32_t BONE_CHEST = 6;
+    constexpr uint32_t BONE_PELVIS = 0;
+    constexpr uint32_t BONE_LEFT_FOOT = 73;
+    constexpr uint32_t BONE_RIGHT_FOOT = 80;
     
     /**
-     * CS:GO Legacy signature patterns for dynamic offset detection
-     * These patterns help find the entity list and local player pointer at runtime
-     * Pattern format: hex bytes with ?? for wildcards
+     * CS:GO Legacy Signature Patterns (IDA Style)
+     * These are used for dynamic offset detection.
      */
     
-    // Common entity list pattern in CS:GO
-    // "mov eax, dword ptr ds:[esi + EntityList]"
-    constexpr const char* ENTITY_LIST_PATTERN = "A1 ?? ?? ?? ?? 8B 0C 88 85 C9 74";
-    constexpr const char* ENTITY_LIST_MASK = "xxx????xxxxxxxx";
+    // dwLocalPlayer: "48 89 e5 48 8b 05 ?? ?? ?? ?? 48 85 c0 74 0b"
+    constexpr const char* LOCAL_PLAYER_SIG = "48 8B 05 ?? ?? ?? ?? 48 85 C0 74 0B";
     
-    // Local player pattern
-    // "mov ecx, dword ptr ds:[offset]"
-    constexpr const char* LOCAL_PLAYER_PATTERN = "8B 0D ?? ?? ?? ?? 85 C9 74";
-    constexpr const char* LOCAL_PLAYER_MASK = "xxx????xxxx";
+    // dwEntityList: "48 8d 05 ?? ?? ?? ?? 48 8b 00"
+    constexpr const char* ENTITY_LIST_SIG = "48 8D 05 ?? ?? ?? ?? 48 8B 00";
+    
+    // dwViewMatrix: "48 8d 05 ?? ?? ?? ?? 48 8d 3d"
+    constexpr const char* VIEW_MATRIX_SIG = "48 8D 05 ?? ?? ?? ?? 48 8D 3D";
 }
 
 /**

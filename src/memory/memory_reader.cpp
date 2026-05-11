@@ -164,62 +164,23 @@ LinuxMemoryReader::LinuxMemoryReader(const char* process_name) : MemoryReader() 
     } else {
         fprintf(stdout, "Successfully opened /proc/%d/mem for process '%s'\n", pid, process_name);
         
-        // Try to find offsets dynamically
-        scanner = std::make_shared<SignatureScanner>(pid);
-        if (find_offsets()) {
-            fprintf(stdout, "Successfully found offsets via signature scanning\n");
+        // Initialize dynamic offsets
+        #include "memory/offset_manager.hpp"
+        if (OffsetManager::instance().initialize(pid)) {
+            fprintf(stdout, "Successfully initialized dynamic offsets\n");
         } else {
-            fprintf(stdout, "Failed to find offsets via scanning, using defaults\n");
+            fprintf(stderr, "Failed to initialize dynamic offsets\n");
         }
+
+        scanner = std::make_shared<SignatureScanner>(pid);
+        scanner->load_modules();
     }
 }
 
-bool LinuxMemoryReader::find_offsets() {
-    if (!scanner) {
-        fprintf(stderr, "Signature scanner not initialized\n");
-        return false;
-    }
-    
-    fprintf(stdout, "[LinuxMemoryReader] Attempting to find offsets via signature scanning...\n");
-    
-    // Try to find entity list offset
-    // Note: These signatures may need to be adjusted for your specific CS:GO Legacy version
-    // Common pattern for entity list access
-    SignatureScanner::Pattern entity_pattern(
-        "A1 ?? ?? ?? ?? 8B 0C 88 85 C9 74",  // mov eax, [entity_list]; mov ecx, [eax+ecx*4]
-        "x????xxxx",
-        1  // Offset to the actual address in the instruction
-    );
-    
-    fprintf(stdout, "[LinuxMemoryReader] Scanning for entity list pattern...\n");
-    uintptr_t entity_addr = scanner->find_pattern(entity_pattern, 0x400000, 300 * 1024 * 1024);
-    if (entity_addr != 0) {
-        // Read the address from the MOV instruction
-        std::vector<uint8_t> bytes = read_memory(entity_addr, 4);
-        if (bytes.size() >= 4) {
-            entity_list_offset = *(uintptr_t*)bytes.data();
-            fprintf(stdout, "[LinuxMemoryReader] Found entity list offset: 0x%lx\n", entity_list_offset);
-        }
-    }
-    
-    // Try to find local player offset
-    SignatureScanner::Pattern local_player_pattern(
-        "8B 0D ?? ?? ?? ?? 85 C9 74",  // mov ecx, [local_player]
-        "x????xxxx",
-        2
-    );
-    
-    fprintf(stdout, "[LinuxMemoryReader] Scanning for local player pattern...\n");
-    uintptr_t local_addr = scanner->find_pattern(local_player_pattern, 0x400000, 300 * 1024 * 1024);
-    if (local_addr != 0) {
-        std::vector<uint8_t> bytes = read_memory(local_addr, 4);
-        if (bytes.size() >= 4) {
-            local_player_offset = *(uintptr_t*)bytes.data();
-            fprintf(stdout, "[LinuxMemoryReader] Found local player offset: 0x%lx\n", local_player_offset);
-        }
-    }
-    
-    return entity_list_offset != 0 || local_player_offset != 0;
+uintptr_t LinuxMemoryReader::get_module_base(const char* module_name) {
+    if (!scanner) return 0;
+    const auto* mod = scanner->get_module(module_name);
+    return mod ? mod->base : 0;
 }
 
 std::vector<uint8_t> LinuxMemoryReader::read_memory(uintptr_t address, size_t size) {
