@@ -123,9 +123,13 @@ void PlayerVisualizer::draw_player(
     AABBVisualizer::draw_3d_aabb(renderer, player.bounding_box, box_color, 2.0f);
     
     // Draw health bar above player
-    Vector2 health_bar_pos = player.bounding_box.center();
+    Vector3 world_center = player.bounding_box.center();
+    Vector2 health_bar_pos;
+    if (!renderer->world_to_screen(world_center, health_bar_pos)) {
+        return; // Player not on screen
+    }
     health_bar_pos.x -= HealthBarVisualizer::BAR_WIDTH / 2.0f;
-    health_bar_pos.y -= player.bounding_box.max.y - player.bounding_box.min.y;
+    health_bar_pos.y -= 20.0f; // Offset above the box
     
     HealthBarVisualizer::draw_health_bar(
         renderer,

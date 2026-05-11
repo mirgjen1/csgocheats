@@ -33,6 +33,8 @@ public:
     void draw_circle(const Vector2& center, float radius, const Color& color) override;
     void draw_text(const Vector2& pos, const char* text, const Color& color) override;
     
+    bool world_to_screen(const Vector3& world_pos, Vector2& screen_pos) const override;
+    
     /**
      * Get DirectX device for advanced rendering
      */

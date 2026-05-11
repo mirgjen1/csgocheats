@@ -53,6 +53,11 @@ public:
     virtual void draw_circle(const Vector2& center, float radius, const Color& color) = 0;
     
     virtual void draw_text(const Vector2& pos, const char* text, const Color& color) = 0;
+    
+    /**
+     * Convert 3D world coordinates to 2D screen coordinates
+     */
+    virtual bool world_to_screen(const Vector3& world_pos, Vector2& screen_pos) const = 0;
 };
 
 using RendererPtr = std::shared_ptr<Renderer>;

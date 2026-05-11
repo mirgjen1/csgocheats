@@ -96,7 +96,7 @@ size_t LinuxMemoryReader::read_memory(uintptr_t address, void* buffer, size_t si
     
     if (lseek(mem_fd, address, SEEK_SET) == -1) return 0;
     
-    ssize_t bytes_read = read(mem_fd, buffer, size);
+    ssize_t bytes_read = ::read(mem_fd, buffer, size);
     return bytes_read > 0 ? bytes_read : 0;
 }
 

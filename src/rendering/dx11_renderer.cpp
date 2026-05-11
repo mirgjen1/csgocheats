@@ -501,4 +501,37 @@ void DirectX11Renderer::set_window_handle(HWND hwnd) {
     window_handle = hwnd;
 }
 
+bool DirectX11Renderer::world_to_screen(const Vector3& world_pos, Vector2& screen_pos) const {
+    // Simplified perspective projection
+    // Real implementation would use view-projection matrix from game
+    
+    const float fov = 90.0f;
+    const float aspect = static_cast<float>(screen_width) / screen_height;
+    
+    // Apply view matrix (simplified - would need actual view matrix)
+    Vector3 view_pos = world_pos; // Simplified
+    
+    // Apply projection matrix
+    float fov_rad = fov * 3.14159f / 180.0f;
+    float f = 1.0f / std::tan(fov_rad / 2.0f);
+    
+    glm::mat4 projection = glm::perspective(fov_rad, aspect, 0.1f, 1000.0f);
+    glm::vec4 clip_pos = projection * glm::vec4(view_pos.x, view_pos.y, view_pos.z, 1.0f);
+    
+    if (clip_pos.w < 0.1f) return false; // Behind camera
+    
+    // Perspective divide
+    Vector3 ndc_pos(
+        clip_pos.x / clip_pos.w,
+        clip_pos.y / clip_pos.w,
+        clip_pos.z / clip_pos.w
+    );
+    
+    // Viewport transform
+    screen_pos.x = (ndc_pos.x + 1.0f) * 0.5f * screen_width;
+    screen_pos.y = (1.0f - ndc_pos.y) * 0.5f * screen_height;
+    
+    return true;
+}
+
 #endif // _WIN32
