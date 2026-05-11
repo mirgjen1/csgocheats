@@ -14,10 +14,10 @@ void HealthBarVisualizer::draw_health_bar(
     Color color = get_health_color(percentage);
     
     // Background (gray)
-    renderer->draw_rect(screen_pos, Vector2(BAR_WIDTH, BAR_HEIGHT), Color(50, 50, 50, 200));
+    renderer->draw_filled_rect(Rect2D(screen_pos.x, screen_pos.y, BAR_WIDTH, BAR_HEIGHT), Color(50, 50, 50, 200));
     
     // Foreground (health color)
-    renderer->draw_rect(screen_pos, Vector2(BAR_WIDTH * percentage, BAR_HEIGHT), color);
+    renderer->draw_filled_rect(Rect2D(screen_pos.x, screen_pos.y, BAR_WIDTH * percentage, BAR_HEIGHT), color);
 }
 
 Color HealthBarVisualizer::get_health_color(float health_percentage) {

@@ -203,3 +203,16 @@ uintptr_t GameMemory::get_entity_from_list(uint32_t index) {
     
     return entity_ptr;
 }
+
+Matrix4x4 GameMemory::read_view_matrix() {
+    Matrix4x4 matrix;
+    if (client_base == 0) return matrix;
+    
+    const auto& offsets = OffsetManager::instance().get();
+    if (offsets.view_matrix == 0) return matrix;
+    
+    uintptr_t vm_addr = client_base + offsets.view_matrix;
+    memory_reader->read_memory(vm_addr, matrix.data, sizeof(matrix.data));
+    
+    return matrix;
+}

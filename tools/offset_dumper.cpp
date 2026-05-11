@@ -102,10 +102,20 @@ std::vector<ModuleInfo> load_modules(pid_t pid) {
     return modules;
 }
 
-// Find a module by partial name
-const ModuleInfo* find_module(const std::vector<ModuleInfo>& modules, const std::string& partial) {
+// Find a module by exact basename
+const ModuleInfo* find_module(const std::vector<ModuleInfo>& modules, const std::string& exact_name) {
     for (const auto& mod : modules) {
-        if (mod.name.find(partial) != std::string::npos || mod.path.find(partial) != std::string::npos) {
+        if (mod.name == exact_name) {
+            return &mod;
+        }
+    }
+    return nullptr;
+}
+
+// Find a module by partial path match (more specific than name)
+const ModuleInfo* find_module_by_path(const std::vector<ModuleInfo>& modules, const std::string& partial_path) {
+    for (const auto& mod : modules) {
+        if (mod.path.find(partial_path) != std::string::npos) {
             return &mod;
         }
     }

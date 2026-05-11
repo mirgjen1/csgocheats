@@ -47,6 +47,11 @@ public:
      */
     Matrix4x4 read_bone_matrix(uintptr_t entity_ptr, uint32_t bone_index);
     
+    /**
+     * Read the view/projection matrix from game memory
+     */
+    Matrix4x4 read_view_matrix();
+    
 private:
     MemoryReaderPtr memory_reader;
     

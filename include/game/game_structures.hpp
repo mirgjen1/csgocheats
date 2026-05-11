@@ -13,23 +13,16 @@
  * If offsets stop working, check the hazedumper repository for updates.
  */
 namespace offsets {
-<<<<<<< HEAD
-    // Verified CS:GO Legacy (Source 1) Linux 64-bit offsets
-    // Note: These are relative to their respective modules (client_client.so)
-=======
-    // Entity list offsets (from hazedumper - updated 2023-09-05)
-    constexpr uintptr_t ENTITY_LIST = 0x4E0102C;      // dwEntityList
-    constexpr uintptr_t LOCAL_PLAYER = 0xDEB99C;      // dwLocalPlayer
->>>>>>> d03621e9466965c376953a8b4e61791aa78af68d
+    // CS:GO Legacy (Source 1) Linux 64-bit offsets
+    // Static fallback offsets (used if signature scanning fails)
+    constexpr uintptr_t ENTITY_LIST = 0x4E0102C;      // dwEntityList (Windows, for reference)
+    constexpr uintptr_t LOCAL_PLAYER = 0xDEB99C;       // dwLocalPlayer (Windows, for reference)
     
     // Static Netvars (These rarely change in Legacy)
     constexpr uintptr_t PLAYER_POSITION = 0x138;      // m_vecOrigin
     constexpr uintptr_t PLAYER_HEALTH = 0x100;        // m_iHealth
     constexpr uintptr_t PLAYER_TEAM = 0xF4;           // m_iTeamNum
-<<<<<<< HEAD
-=======
     constexpr uintptr_t PLAYER_NAME = 0x304C;         // m_szCustomName
->>>>>>> d03621e9466965c376953a8b4e61791aa78af68d
     constexpr uintptr_t PLAYER_BONE_MATRIX = 0x26A8;  // m_dwBoneMatrix
     
     // Bone indices for CS:GO Legacy
@@ -40,13 +33,9 @@ namespace offsets {
     constexpr uint32_t BONE_LEFT_FOOT = 73;
     constexpr uint32_t BONE_RIGHT_FOOT = 80;
     
-    // dwLocalPlayer
+    // Signature patterns for dynamic offset detection
     constexpr const char* LOCAL_PLAYER_SIG = "48 8B 05 ?? ?? ?? ?? 48 85 C0 74 0B";
-    
-    // dwEntityList
     constexpr const char* ENTITY_LIST_SIG = "48 8D 05 ?? ?? ?? ?? 48 8B 00 48 85 C0 74 ?? 48 8B 00";
-    
-    // dwViewMatrix
     constexpr const char* VIEW_MATRIX_SIG = "48 8D 05 ?? ?? ?? ?? 48 8D 3D ?? ?? ?? ?? 48 8D 35";
 }
 

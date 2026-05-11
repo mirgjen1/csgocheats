@@ -68,8 +68,17 @@ bool SignatureScanner::load_modules() {
 }
 
 const SignatureScanner::ModuleInfo* SignatureScanner::get_module(const std::string& name) const {
+    // First try exact basename match
     for (const auto& mod : modules) {
-        if (mod.name == name || mod.path.find(name) != std::string::npos) {
+        if (mod.name == name) {
+            return &mod;
+        }
+    }
+    // Then try matching the full path ending (e.g. "csgo/bin/linux64/client_client.so")
+    for (const auto& mod : modules) {
+        // Only match if the name appears after a '/' to avoid partial matches
+        size_t pos = mod.path.rfind("/" + name);
+        if (pos != std::string::npos && pos + 1 + name.size() == mod.path.size()) {
             return &mod;
         }
     }
