@@ -57,6 +57,11 @@ public:
      */
     uintptr_t find_pattern(const Pattern& pattern, uintptr_t start, size_t range);
     
+    /**
+     * Get all loaded modules
+     */
+    const std::vector<ModuleInfo>& get_all_modules() const { return modules; }
+
 private:
     pid_t process_id;
     int mem_fd;

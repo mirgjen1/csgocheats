@@ -148,31 +148,33 @@ void OverlayRenderer::draw_text(const Vector2& pos, const char* text, const Colo
 }
 
 bool OverlayRenderer::world_to_screen(const Vector3& world_pos, Vector2& screen_pos) const {
-    // Simplified perspective projection
-    // Real implementation would use view-projection matrix
+    // Standard 4x4 Matrix projection
+    // view_matrix here is assumed to be the View-Projection matrix from the game
     
-    const float fov = 90.0f;
-    const float aspect = static_cast<float>(screen_width) / screen_height;
-    
-    // Apply view matrix
-    Vector3 view_pos = world_pos; // Simplified - would apply view matrix
-    
-    // Apply projection matrix
-    if (view_pos.z <= 0.1f) return false; // Behind camera
-    
-    float screen_x = (screen_width / 2.0f) + 
-                     (view_pos.x / view_pos.z) * (screen_width / (2.0f * std::tan(fov / 2.0f)));
-    float screen_y = (screen_height / 2.0f) - 
-                     (view_pos.y / view_pos.z) * (screen_height / (2.0f * std::tan(fov / 2.0f) / aspect));
-    
-    // Check if on screen
-    if (screen_x < 0 || screen_x > screen_width || 
-        screen_y < 0 || screen_y > screen_height) {
-        return false;
-    }
-    
-    screen_pos.x = screen_x;
-    screen_pos.y = screen_y;
+    float w = view_matrix.data[3] * world_pos.x + 
+              view_matrix.data[7] * world_pos.y + 
+              view_matrix.data[11] * world_pos.z + 
+              view_matrix.data[15];
+
+    if (w < 0.01f) return false;
+
+    float x = view_matrix.data[0] * world_pos.x + 
+              view_matrix.data[4] * world_pos.y + 
+              view_matrix.data[8] * world_pos.z + 
+              view_matrix.data[12];
+              
+    float y = view_matrix.data[1] * world_pos.x + 
+              view_matrix.data[5] * world_pos.y + 
+              view_matrix.data[9] * world_pos.z + 
+              view_matrix.data[13];
+
+    float inv_w = 1.0f / w;
+    x *= inv_w;
+    y *= inv_w;
+
+    screen_pos.x = (screen_width / 2.0f) + (x * screen_width / 2.0f);
+    screen_pos.y = (screen_height / 2.0f) - (y * screen_height / 2.0f);
+
     return true;
 }
 

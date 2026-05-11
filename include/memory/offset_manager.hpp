@@ -35,9 +35,15 @@ public:
      */
     bool is_ready() const { return ready; }
 
+    /**
+     * Get the name of the client module that was found
+     */
+    std::string get_client_module_name() const { return client_module_name; }
+
 private:
     OffsetManager() = default;
     
     Offsets current_offsets;
+    std::string client_module_name;
     bool ready = false;
 };

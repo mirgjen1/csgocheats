@@ -42,8 +42,8 @@ bool SignatureScanner::load_modules() {
         std::string name = (last_slash == std::string::npos) ? path : path.substr(last_slash + 1);
         
         size_t dash = range.find('-');
-        uintptr_t start = std::stoul(range.substr(0, dash), nullptr, 16);
-        uintptr_t end = std::stoul(range.substr(dash + 1), nullptr, 16);
+        uintptr_t start = std::stoull(range.substr(0, dash), nullptr, 16);
+        uintptr_t end = std::stoull(range.substr(dash + 1), nullptr, 16);
         
         // Check if we already have this module (multiple mappings)
         bool found = false;
@@ -59,10 +59,11 @@ bool SignatureScanner::load_modules() {
         
         if (!found) {
             modules.push_back({start, end, (size_t)(end - start), path, name});
+            // Optional: fprintf(stdout, "[SignatureScanner] Found module: %s (0x%lx)\n", name.c_str(), start);
         }
     }
     
-    fprintf(stdout, "[SignatureScanner] Loaded %zu modules\n", modules.size());
+    fprintf(stdout, "[SignatureScanner] Loaded %zu modules from maps\n", modules.size());
     return !modules.empty();
 }
 

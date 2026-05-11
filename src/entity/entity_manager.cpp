@@ -12,6 +12,12 @@ void EntityManager::update() {
     
     // Read all players from game memory
     entities = game_memory->read_players();
+    
+    // Update view matrix in renderer
+    if (renderer) {
+        Matrix4x4 view_matrix = game_memory->read_view_matrix();
+        renderer->set_view_matrix(view_matrix);
+    }
 }
 
 void EntityManager::render() {

@@ -11,7 +11,10 @@ set(SOURCES
     src/overlay/overlay_window.cpp
     src/memory/memory_reader.cpp
     src/memory/game_memory.cpp
+    src/memory/offset_manager.cpp
+    src/memory/signature_scanner.cpp
     src/rendering/renderer.cpp
+    src/rendering/visualizer.cpp
     src/rendering/primitives.cpp
     src/rendering/dx11_renderer.cpp
     src/entity/entity_manager.cpp

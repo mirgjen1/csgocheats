@@ -39,6 +39,8 @@ public:
      */
     GLFWwindow* get_window() const;
     
+    void set_view_matrix(const Matrix4x4& matrix) override;
+    
 private:
     // Window and context
     GLFWwindow* window = nullptr;
@@ -55,6 +57,7 @@ private:
     // View/projection matrices
     glm::mat4 projection;
     glm::mat4 view;
+    Matrix4x4 current_view_matrix;
     
     struct Vertex {
         float x, y;

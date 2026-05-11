@@ -6,11 +6,12 @@
 
 GameMemory::GameMemory(MemoryReaderPtr reader) 
     : memory_reader(reader) {
-    // In Linux, we need the base address of client_client.so
+    // In Linux, we need the base address of the client module
     auto linux_reader = std::dynamic_pointer_cast<LinuxMemoryReader>(reader);
     if (linux_reader) {
-        client_base = linux_reader->get_module_base("client_client.so");
-        fprintf(stdout, "[GameMemory] client_client.so base: 0x%lx\n", client_base);
+        std::string mod_name = OffsetManager::instance().get_client_module_name();
+        client_base = linux_reader->get_module_base(mod_name.c_str());
+        fprintf(stdout, "[GameMemory] %s base: 0x%lx\n", mod_name.c_str(), client_base);
     }
 }
 

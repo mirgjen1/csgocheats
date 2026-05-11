@@ -14,43 +14,74 @@ bool OffsetManager::initialize(pid_t pid) {
     
     SignatureScanner scanner(pid);
     if (!scanner.load_modules()) {
-        fprintf(stderr, "[OffsetManager] Failed to load modules\n");
+        fprintf(stderr, "[OffsetManager] Failed to load modules from maps\n");
         return false;
     }
 
-    // CS:GO Legacy Linux 64-bit module name is usually client_client.so
-    const std::string client_mod = "client_client.so";
+    // DEBUG: Print some loaded modules to verify
+    const auto& all_modules = scanner.get_all_modules();
+    fprintf(stdout, "[OffsetManager] Total modules loaded: %zu\n", all_modules.size());
+    for (size_t i = 0; i < std::min(all_modules.size(), (size_t)10); ++i) {
+        fprintf(stdout, "[OffsetManager] Module: %s at 0x%lx\n", all_modules[i].name.c_str(), all_modules[i].base);
+    }
+
+    // CS:GO Legacy Linux 64-bit module names
+    // It can be client_client.so or client.so depending on build
+    const std::vector<std::string> client_mods = {"client_client.so", "client.so", "libclient.so"};
+    const std::vector<std::string> engine_mods = {"engine_client.so", "engine.so", "libengine.so"};
     
-    fprintf(stdout, "[OffsetManager] Scanning %s for offsets...\n", client_mod.c_str());
+    std::string found_client;
+    for (const auto& mod : client_mods) {
+        if (scanner.get_module(mod)) {
+            found_client = mod;
+            break;
+        }
+    }
+
+    if (found_client.empty()) {
+        fprintf(stderr, "[OffsetManager] Could not find any client module!\n");
+        return false;
+    }
+    
+    client_module_name = found_client;
+    fprintf(stdout, "[OffsetManager] Using client module: %s\n", found_client.c_str());
 
     // Find Local Player
     SignatureScanner::Pattern local_player_pat(offsets::LOCAL_PLAYER_SIG, 3, true);
-    current_offsets.local_player = scanner.find_pattern(client_mod, local_player_pat);
+    current_offsets.local_player = scanner.find_pattern(found_client, local_player_pat);
     if (current_offsets.local_player) {
         fprintf(stdout, "[OffsetManager] Found local_player offset: 0x%lx\n", current_offsets.local_player);
-    } else {
-        // Fallback to static if scanning fails (though static are often wrong)
-        fprintf(stderr, "[OffsetManager] Failed to find local_player via pattern\n");
     }
 
     // Find Entity List
     SignatureScanner::Pattern entity_list_pat(offsets::ENTITY_LIST_SIG, 3, true);
-    current_offsets.entity_list = scanner.find_pattern(client_mod, entity_list_pat);
+    current_offsets.entity_list = scanner.find_pattern(found_client, entity_list_pat);
     if (current_offsets.entity_list) {
         fprintf(stdout, "[OffsetManager] Found entity_list offset: 0x%lx\n", current_offsets.entity_list);
-    } else {
-        fprintf(stderr, "[OffsetManager] Failed to find entity_list via pattern\n");
     }
 
-    // Find View Matrix
+    // Find View Matrix (Try client first, then engine)
     SignatureScanner::Pattern view_matrix_pat(offsets::VIEW_MATRIX_SIG, 3, true);
-    current_offsets.view_matrix = scanner.find_pattern(client_mod, view_matrix_pat);
-    if (current_offsets.view_matrix) {
-        fprintf(stdout, "[OffsetManager] Found view_matrix offset: 0x%lx\n", current_offsets.view_matrix);
+    current_offsets.view_matrix = scanner.find_pattern(found_client, view_matrix_pat);
+    
+    if (!current_offsets.view_matrix) {
+        for (const auto& mod : engine_mods) {
+            if (scanner.get_module(mod)) {
+                current_offsets.view_matrix = scanner.find_pattern(mod, view_matrix_pat);
+                if (current_offsets.view_matrix) {
+                    fprintf(stdout, "[OffsetManager] Found view_matrix in %s: 0x%lx\n", mod.c_str(), current_offsets.view_matrix);
+                    break;
+                }
+            }
+        }
     } else {
-        fprintf(stderr, "[OffsetManager] Failed to find view_matrix via pattern\n");
+        fprintf(stdout, "[OffsetManager] Found view_matrix in %s: 0x%lx\n", found_client.c_str(), current_offsets.view_matrix);
     }
 
     ready = (current_offsets.local_player != 0 && current_offsets.entity_list != 0);
+    if (!ready) {
+        fprintf(stderr, "[OffsetManager] Failed to find essential offsets!\n");
+    }
+    
     return ready;
 }

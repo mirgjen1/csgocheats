@@ -365,29 +365,36 @@ void OpenGLRenderer::draw_text(const Vector2& pos, const char* text, const Color
 }
 
 bool OpenGLRenderer::world_to_screen(const Vector3& world_pos, Vector2& screen_pos) const {
-    // Simplified perspective projection
-    const float fov = 90.0f;
-    const float aspect = static_cast<float>(screen_width) / screen_height;
-    
-    // Apply projection matrix
-    float fov_rad = fov * 3.14159f / 180.0f;
-    glm::mat4 proj = glm::perspective(fov_rad, aspect, 0.1f, 1000.0f);
-    glm::vec4 clip_pos = proj * glm::vec4(world_pos.x, world_pos.y, world_pos.z, 1.0f);
-    
-    if (clip_pos.w < 0.1f) return false; // Behind camera
-    
-    // Perspective divide
-    Vector3 ndc_pos(
-        clip_pos.x / clip_pos.w,
-        clip_pos.y / clip_pos.w,
-        clip_pos.z / clip_pos.w
-    );
-    
-    // Viewport transform
-    screen_pos.x = (ndc_pos.x + 1.0f) * 0.5f * screen_width;
-    screen_pos.y = (1.0f - ndc_pos.y) * 0.5f * screen_height;
-    
+    // Standard 4x4 Matrix projection
+    float w = current_view_matrix.data[3] * world_pos.x + 
+              current_view_matrix.data[7] * world_pos.y + 
+              current_view_matrix.data[11] * world_pos.z + 
+              current_view_matrix.data[15];
+
+    if (w < 0.01f) return false;
+
+    float x = current_view_matrix.data[0] * world_pos.x + 
+              current_view_matrix.data[4] * world_pos.y + 
+              current_view_matrix.data[8] * world_pos.z + 
+              current_view_matrix.data[12];
+              
+    float y = current_view_matrix.data[1] * world_pos.x + 
+              current_view_matrix.data[5] * world_pos.y + 
+              current_view_matrix.data[9] * world_pos.z + 
+              current_view_matrix.data[13];
+
+    float inv_w = 1.0f / w;
+    x *= inv_w;
+    y *= inv_w;
+
+    screen_pos.x = (screen_width / 2.0f) + (x * screen_width / 2.0f);
+    screen_pos.y = (screen_height / 2.0f) - (y * screen_height / 2.0f);
+
     return true;
+}
+
+void OpenGLRenderer::set_view_matrix(const Matrix4x4& matrix) {
+    current_view_matrix = matrix;
 }
 
 void OpenGLRenderer::submit_vertices(const Vertex* vertices, size_t count) {

@@ -30,19 +30,14 @@ namespace offsets {
     constexpr uint32_t BONE_LEFT_FOOT = 73;
     constexpr uint32_t BONE_RIGHT_FOOT = 80;
     
-    /**
-     * CS:GO Legacy Signature Patterns (IDA Style)
-     * These are used for dynamic offset detection.
-     */
-    
-    // dwLocalPlayer: "48 89 e5 48 8b 05 ?? ?? ?? ?? 48 85 c0 74 0b"
+    // dwLocalPlayer
     constexpr const char* LOCAL_PLAYER_SIG = "48 8B 05 ?? ?? ?? ?? 48 85 C0 74 0B";
     
-    // dwEntityList: "48 8d 05 ?? ?? ?? ?? 48 8b 00"
-    constexpr const char* ENTITY_LIST_SIG = "48 8D 05 ?? ?? ?? ?? 48 8B 00";
+    // dwEntityList
+    constexpr const char* ENTITY_LIST_SIG = "48 8D 05 ?? ?? ?? ?? 48 8B 00 48 85 C0 74 ?? 48 8B 00";
     
-    // dwViewMatrix: "48 8d 05 ?? ?? ?? ?? 48 8d 3d"
-    constexpr const char* VIEW_MATRIX_SIG = "48 8D 05 ?? ?? ?? ?? 48 8D 3D";
+    // dwViewMatrix
+    constexpr const char* VIEW_MATRIX_SIG = "48 8D 05 ?? ?? ?? ?? 48 8D 3D ?? ?? ?? ?? 48 8D 35";
 }
 
 /**

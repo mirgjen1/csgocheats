@@ -17,10 +17,10 @@ bool Overlay::initialize(const Config& cfg) {
     
     // Create memory reader
 #ifdef _WIN32
-    memory_reader = std::make_shared<WindowsMemoryReader>(L"cs2.exe");
+    memory_reader = std::make_shared<WindowsMemoryReader>(L"csgo.exe");
 #else
-    // Linux: try to find csgo_linux64 process
-    memory_reader = std::make_shared<LinuxMemoryReader>("csgo_linux64");
+    // Linux: use process name from config
+    memory_reader = std::make_shared<LinuxMemoryReader>(config.process_name);
 #endif
     
     if (!memory_reader) {

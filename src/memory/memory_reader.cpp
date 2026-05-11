@@ -1,4 +1,5 @@
 #include "memory/memory_reader.hpp"
+#include "memory/offset_manager.hpp"
 #include <cstring>
 
 #ifdef _WIN32
@@ -165,7 +166,6 @@ LinuxMemoryReader::LinuxMemoryReader(const char* process_name) : MemoryReader() 
         fprintf(stdout, "Successfully opened /proc/%d/mem for process '%s'\n", pid, process_name);
         
         // Initialize dynamic offsets
-        #include "memory/offset_manager.hpp"
         if (OffsetManager::instance().initialize(pid)) {
             fprintf(stdout, "Successfully initialized dynamic offsets\n");
         } else {
@@ -183,19 +183,6 @@ uintptr_t LinuxMemoryReader::get_module_base(const char* module_name) {
     return mod ? mod->base : 0;
 }
 
-std::vector<uint8_t> LinuxMemoryReader::read_memory(uintptr_t address, size_t size) {
-    std::vector<uint8_t> buffer(size);
-    if (mem_fd == -1) return buffer;
-    
-    if (lseek(mem_fd, address, SEEK_SET) == -1) return buffer;
-    
-    ssize_t bytes_read = ::read(mem_fd, buffer.data(), size);
-    if (bytes_read <= 0) {
-        buffer.clear();
-    }
-    
-    return buffer;
-}
 
 LinuxMemoryReader::~LinuxMemoryReader() {
     if (mem_fd != -1) {

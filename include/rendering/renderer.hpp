@@ -58,6 +58,11 @@ public:
      * Convert 3D world coordinates to 2D screen coordinates
      */
     virtual bool world_to_screen(const Vector3& world_pos, Vector2& screen_pos) const = 0;
+
+    /**
+     * Set view matrix for projection
+     */
+    virtual void set_view_matrix(const Matrix4x4& matrix) = 0;
 };
 
 using RendererPtr = std::shared_ptr<Renderer>;
