@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Main executable
-add_executable(cs2overlay
+set(SOURCES
     src/main.cpp
     src/overlay/overlay.cpp
     src/overlay/overlay_window.cpp
@@ -17,13 +17,30 @@ add_executable(cs2overlay
     src/entity/entity_manager.cpp
 )
 
+# Add OpenGL renderer on Linux
+if(UNIX AND NOT APPLE)
+    list(APPEND SOURCES src/rendering/opengl_renderer.cpp)
+endif()
+
+add_executable(cs2overlay ${SOURCES})
+
 target_include_directories(cs2overlay PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 # Platform-specific dependencies
 if(UNIX AND NOT APPLE)
-    target_link_libraries(cs2overlay PRIVATE X11)
+    # Linux/Unix dependencies
+    find_package(OpenGL REQUIRED)
+    find_package(GLEW REQUIRED)
+    find_package(glfw3 REQUIRED)
+    
+    target_link_libraries(cs2overlay PRIVATE 
+        X11 
+        OpenGL::OpenGL
+        GLEW::GLEW
+        glfw
+    )
 elseif(WIN32)
     target_link_libraries(cs2overlay PRIVATE 
         User32 

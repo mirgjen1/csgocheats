@@ -71,15 +71,43 @@ private:
  * Platform-specific Linux implementation
  */
 #ifdef __linux__
+#include "memory/signature_scanner.hpp"
+
 class LinuxMemoryReader : public MemoryReader {
 public:
     explicit LinuxMemoryReader(pid_t pid);
+    explicit LinuxMemoryReader(const char* process_name);
     ~LinuxMemoryReader() override;
     
     size_t read_memory(uintptr_t address, void* buffer, size_t size) override;
     
+    /**
+     * Try to find offsets dynamically using signature scanning
+     */
+    bool find_offsets();
+    
+    /**
+     * Get current entity list offset (may be dynamically found)
+     */
+    uintptr_t get_entity_list_offset() const { return entity_list_offset; }
+    
+    /**
+     * Get current local player offset (may be dynamically found)
+     */
+    uintptr_t get_local_player_offset() const { return local_player_offset; }
+    
 private:
     int mem_fd = -1;
+    SignatureScannerPtr scanner;
+    
+    // Dynamic offsets found by scanning
+    uintptr_t entity_list_offset = 0;
+    uintptr_t local_player_offset = 0;
+    
+    /**
+     * Helper to find process ID by name
+     */
+    static pid_t find_process_by_name(const char* process_name);
 };
 #endif
 

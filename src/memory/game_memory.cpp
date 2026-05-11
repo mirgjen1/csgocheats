@@ -2,6 +2,7 @@
 #include "game/game_structures.hpp"
 #include <algorithm>
 #include <cmath>
+#include <cstdio>
 
 GameMemory::GameMemory(MemoryReaderPtr reader) 
     : memory_reader(reader) {
@@ -9,6 +10,15 @@ GameMemory::GameMemory(MemoryReaderPtr reader)
 
 std::vector<PlayerEntity> GameMemory::read_players() {
     std::vector<PlayerEntity> players;
+    
+    // Debug: show entity list address
+    uintptr_t entity_list = memory_reader->read<uintptr_t>(offsets::ENTITY_LIST);
+    static bool debug_printed = false;
+    if (!debug_printed) {
+        fprintf(stdout, "[DEBUG] Entity list offset: 0x%lx\n", (uintptr_t)offsets::ENTITY_LIST);
+        fprintf(stdout, "[DEBUG] Entity list address: 0x%lx\n", entity_list);
+        debug_printed = true;
+    }
     
     // Try to read up to 64 player entities
     for (uint32_t i = 0; i < 64; ++i) {
@@ -18,6 +28,8 @@ std::vector<PlayerEntity> GameMemory::read_players() {
         // Check if entity is valid
         uint32_t health = read_player_health(entity_ptr);
         if (health == 0) continue;
+        
+        fprintf(stdout, "[DEBUG] Found entity %u at 0x%lx with health %u\n", i, entity_ptr, health);
         
         PlayerEntity player = read_player_entity(entity_ptr, i);
         if (player.is_alive()) {
@@ -146,6 +158,11 @@ uintptr_t GameMemory::get_entity_from_list(uint32_t index) {
     uintptr_t entity_ptr = memory_reader->read<uintptr_t>(
         entity_list + (index * sizeof(uintptr_t))
     );
+    
+    if (index < 3) {
+        fprintf(stdout, "[DEBUG] get_entity_from_list(%u): reading from 0x%lx, got 0x%lx\n", 
+                index, entity_list + (index * sizeof(uintptr_t)), entity_ptr);
+    }
     
     return entity_ptr;
 }

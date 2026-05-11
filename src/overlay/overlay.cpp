@@ -3,6 +3,9 @@
 #ifdef _WIN32
 #include "rendering/dx11_renderer.hpp"
 #include "overlay/overlay_window.hpp"
+#else
+#include "rendering/opengl_renderer.hpp"
+#include "memory/memory_reader.hpp"
 #endif
 
 Overlay::~Overlay() {
@@ -16,8 +19,8 @@ bool Overlay::initialize(const Config& cfg) {
 #ifdef _WIN32
     memory_reader = std::make_shared<WindowsMemoryReader>(L"cs2.exe");
 #else
-    // For Linux, would need process ID
-    memory_reader = std::make_shared<MockMemoryReader>();
+    // Linux: try to find csgo_linux64 process
+    memory_reader = std::make_shared<LinuxMemoryReader>("csgo_linux64");
 #endif
     
     if (!memory_reader) {
@@ -30,7 +33,7 @@ bool Overlay::initialize(const Config& cfg) {
         return false;
     }
     
-    // Create renderer - use DirectX 11 on Windows
+    // Create renderer - use DirectX 11 on Windows, OpenGL on Linux
 #ifdef _WIN32
     auto dx11_renderer = std::make_shared<DirectX11Renderer>();
     
@@ -51,11 +54,12 @@ bool Overlay::initialize(const Config& cfg) {
     renderer = dx11_renderer;
     overlay_win = overlay_window;
 #else
-    // Fallback to mock renderer on non-Windows platforms
-    renderer = std::make_shared<OverlayRenderer>();
-    if (!renderer->initialize(config.window_width, config.window_height)) {
+    // Use OpenGL renderer on Linux
+    auto opengl_renderer = std::make_shared<OpenGLRenderer>();
+    if (!opengl_renderer->initialize(config.window_width, config.window_height)) {
         return false;
     }
+    renderer = opengl_renderer;
 #endif
     
     // Create entity manager

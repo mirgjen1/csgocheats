@@ -31,6 +31,22 @@ namespace offsets {
     constexpr uintptr_t BONE_PELVIS = 0;
     constexpr uintptr_t BONE_LEFT_FOOT = 12;
     constexpr uintptr_t BONE_RIGHT_FOOT = 11;
+    
+    /**
+     * CS:GO Legacy signature patterns for dynamic offset detection
+     * These patterns help find the entity list and local player pointer at runtime
+     * Pattern format: hex bytes with ?? for wildcards
+     */
+    
+    // Common entity list pattern in CS:GO
+    // "mov eax, dword ptr ds:[esi + EntityList]"
+    constexpr const char* ENTITY_LIST_PATTERN = "A1 ?? ?? ?? ?? 8B 0C 88 85 C9 74";
+    constexpr const char* ENTITY_LIST_MASK = "xxx????xxxxxxxx";
+    
+    // Local player pattern
+    // "mov ecx, dword ptr ds:[offset]"
+    constexpr const char* LOCAL_PLAYER_PATTERN = "8B 0D ?? ?? ?? ?? 85 C9 74";
+    constexpr const char* LOCAL_PLAYER_MASK = "xxx????xxxx";
 }
 
 /**
