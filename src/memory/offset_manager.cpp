@@ -44,20 +44,28 @@ bool OffsetManager::initialize(pid_t pid) {
     }
     
     client_module_name = found_client;
-    fprintf(stdout, "[OffsetManager] Using client module: %s\n", found_client.c_str());
+    const auto* client_info = scanner.get_module(found_client);
+    fprintf(stdout, "[OffsetManager] Using client module: %s (Base: 0x%lx, Size: %zu)\n", 
+            found_client.c_str(), client_info->base, client_info->size);
 
     // Find Local Player
     SignatureScanner::Pattern local_player_pat(offsets::LOCAL_PLAYER_SIG, 3, true);
     current_offsets.local_player = scanner.find_pattern(found_client, local_player_pat);
     if (current_offsets.local_player) {
-        fprintf(stdout, "[OffsetManager] Found local_player offset: 0x%lx\n", current_offsets.local_player);
+        fprintf(stdout, "[OffsetManager] SUCCESS: Found local_player offset: 0x%lx (Absolute: 0x%lx)\n", 
+                current_offsets.local_player, client_info->base + current_offsets.local_player);
+    } else {
+        fprintf(stderr, "[OffsetManager] ERROR: Failed to find local_player signature!\n");
     }
 
     // Find Entity List
     SignatureScanner::Pattern entity_list_pat(offsets::ENTITY_LIST_SIG, 3, true);
     current_offsets.entity_list = scanner.find_pattern(found_client, entity_list_pat);
     if (current_offsets.entity_list) {
-        fprintf(stdout, "[OffsetManager] Found entity_list offset: 0x%lx\n", current_offsets.entity_list);
+        fprintf(stdout, "[OffsetManager] SUCCESS: Found entity_list offset: 0x%lx (Absolute: 0x%lx)\n", 
+                current_offsets.entity_list, client_info->base + current_offsets.entity_list);
+    } else {
+        fprintf(stderr, "[OffsetManager] ERROR: Failed to find entity_list signature!\n");
     }
 
     // Find View Matrix (Try client first, then engine)
