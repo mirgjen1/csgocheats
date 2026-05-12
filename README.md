@@ -4,7 +4,7 @@ A conceptual C++ framework for building external game overlays with real-time en
 
 ## Features
 
-✨ **Core Capabilities**
+**Core Capabilities**
 - Real-time game memory reading (Windows/Linux)
 - Dynamic player entity tracking
 - 3D-to-2D world-to-screen projection
@@ -173,7 +173,7 @@ PLAYER_TEAM         // Team information offset
 PLAYER_BONE_MATRIX  // Skeletal transform matrices offset
 ```
 
-⚠️ **Important:** These are example offsets that may vary by game version. See [IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md) for offset discovery procedures.
+**Important:** These are example offsets that may vary by game version. See [IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md) for offset discovery procedures.
 
 ## Documentation
 
@@ -234,7 +234,7 @@ This project teaches:
 
 ## Limitations & Disclaimers
 
-⚠️ **Educational Purposes Only**
+**Educational Purposes Only**
 
 This framework is for learning graphics and systems programming concepts. External overlays may:
 
