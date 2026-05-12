@@ -67,19 +67,16 @@ int main() {
     // Monitor entity updates in main thread
     int frame_count = 0;
     while (overlay->is_running()) {
-        // Check for exit condition (in real app, would be event-driven)
-        if (frame_count % 60 == 0) {
-            size_t entity_count = entity_manager->get_entities().size();
-            std::cout << "Frame: " << frame_count << " | Entities: " << entity_count << std::endl;
-        }
+        // Monitor entities - slow down the logic loop slightly to save CPU
+        entity_manager->update();
         
-        std::this_thread::sleep_for(std::chrono::milliseconds(16));
+        if (frame_count % 100 == 0) {
+            std::cout << "\rFrame: " << frame_count << " | Entities: " << entity_manager->entity_count() << std::flush;
+        }
         frame_count++;
         
-        // Exit after a long time or if game closes
-        if (frame_count > 100000) {
-            overlay->stop();
-        }
+        // Increase sleep to 32ms (approx 30 updates per second) to prevent game lag
+        std::this_thread::sleep_for(std::chrono::milliseconds(32));
     }
     
     std::cout << "\nShutting down overlay..." << std::endl;

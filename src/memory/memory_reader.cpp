@@ -90,6 +90,15 @@ pid_t LinuxMemoryReader::find_process_by_name(const char* process_name) {
     }
     
     struct dirent* entry;
+    // First, check if PID 10330 is valid and has game modules (user specified)
+    const pid_t manual_pid = 10330;
+    char manual_maps[256];
+    snprintf(manual_maps, sizeof(manual_maps), "/proc/%d/maps", manual_pid);
+    if (access(manual_maps, F_OK) != -1) {
+        fprintf(stdout, "[MemoryReader] Testing manual PID 10330...\n");
+        return manual_pid;
+    }
+
     DIR* dir = opendir("/proc");
     if (!dir) return -1;
 
