@@ -3,11 +3,14 @@
 #ifndef _WIN32
 
 #include <vector>
+#include <cstdio>
+/*
 #include <X11/Xlib.h>
 #include <X11/extensions/shape.h>
 
 #define GLFW_EXPOSE_NATIVE_X11
 #include <GLFW/glfw3native.h>
+*/
 
 // Vertex shader source
 const char* VERTEX_SHADER_SRC = R"glsl(
@@ -117,6 +120,7 @@ bool OpenGLRenderer::create_window() {
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
     
+    /*
     // Make window click-through using X11 Shape extension
     Display* x11_display = glfwGetX11Display();
     Window x11_window = glfwGetX11Window(window);
@@ -126,6 +130,7 @@ bool OpenGLRenderer::create_window() {
         XFlush(x11_display);
         fprintf(stdout, "[OpenGLRenderer] Set window to click-through mode\n");
     }
+    */
     
     return true;
 }

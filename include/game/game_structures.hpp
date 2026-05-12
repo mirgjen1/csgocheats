@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstring>
 #include <string>
+#include <vector>
 #include <glm/glm.hpp>
 
 /**
@@ -14,12 +15,12 @@ namespace offsets {
     constexpr uintptr_t LOCAL_PLAYER = 0x22ec4d8;
     constexpr uintptr_t VIEW_MATRIX = 0x2c83fa8;    
     
-    // Static Netvars (These rarely change in Legacy)
-    constexpr uintptr_t PLAYER_POSITION = 0x138;      // m_vecOrigin
-    constexpr uintptr_t PLAYER_HEALTH = 0x100;        // m_iHealth
-    constexpr uintptr_t PLAYER_TEAM = 0xF4;           // m_iTeamNum
-    constexpr uintptr_t PLAYER_NAME = 0x304C;         // m_szCustomName
-    constexpr uintptr_t PLAYER_BONE_MATRIX = 0x26A8;  // m_dwBoneMatrix
+    // Netvars
+    constexpr uintptr_t m_vecOrigin = 0x138;
+    constexpr uintptr_t m_iHealth = 0x100;
+    constexpr uintptr_t m_iTeamNum = 0xF4;
+    constexpr uintptr_t m_szCustomName = 0x304C;
+    constexpr uintptr_t m_dwBoneMatrix = 0x26A8;
     
     // Bone indices for CS:GO Legacy
     constexpr uint32_t BONE_HEAD = 8;
@@ -52,7 +53,7 @@ struct Vector3 {
         return Vector3(x - other.x, y - other.y, z - other.z);
     }
     
-    Vector3 center() const { return *this; } // For compatibility
+    Vector3 center() const { return *this; }
 };
 
 /**
@@ -85,6 +86,20 @@ struct AABB {
 };
 
 /**
+ * Player entity structure
+ */
+struct PlayerEntity {
+    uint32_t entity_id;
+    uint32_t health;
+    uint32_t max_health;
+    uint32_t team;
+    Vector3 position;
+    AABB bounding_box;
+    
+    bool is_alive() const { return health > 0 && health <= 100; }
+};
+
+/**
  * Screen space rectangle for 2D rendering
  */
 struct Rect2D {
@@ -106,8 +121,13 @@ struct Color {
 };
 
 /**
- * Matrix 4x4 for view-projection
+ * Matrix 4x4 for view-projection and bone matrices
  */
 struct Matrix4x4 {
     float data[16];
+    
+    Vector3 get_position() const {
+        // Translation is stored in data[12], data[13], data[14] per game_memory.cpp
+        return Vector3(data[12], data[13], data[14]);
+    }
 };

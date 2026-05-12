@@ -1,5 +1,6 @@
 #include "rendering/visualizer.hpp"
 #include <algorithm>
+#include <cstdio>
 
 /**
  * HealthBarVisualizer implementation

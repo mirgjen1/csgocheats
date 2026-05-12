@@ -1,4 +1,5 @@
 #include "entity/entity_manager.hpp"
+#include <cstdio>
 #include "rendering/visualizer.hpp"
 #include <chrono>
 

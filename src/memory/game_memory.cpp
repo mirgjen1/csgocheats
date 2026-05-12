@@ -187,9 +187,9 @@ uintptr_t GameMemory::get_entity_from_list(uint32_t index) {
     uintptr_t entity_list = client_base + offsets.entity_list;
     if (entity_list == 0) return 0;
     
-    // CS:GO Legacy entity list on Linux 64-bit uses 0x20 stride
+    // CS:GO Legacy entity list on Linux 64-bit uses 0x10 stride
     uintptr_t entity_ptr = memory_reader->read<uintptr_t>(
-        entity_list + (index * 0x20)
+        entity_list + (index * 0x10)
     );
     
     if (entity_ptr != 0) {

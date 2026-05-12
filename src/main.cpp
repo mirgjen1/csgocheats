@@ -36,9 +36,9 @@ int main() {
     
     std::cout << "Overlay initialized successfully!" << std::endl;
     std::cout << "Resolution: " << config.window_width << "x" << config.window_height << std::endl;
-    
     // Create UI backend
     auto ui_backend = std::make_shared<UIBackend>(overlay->get_renderer());
+    auto entity_manager = overlay->get_entity_manager();
     
     // Set up custom render callback for additional UI elements
     overlay->set_render_callback([ui_backend, entity_manager](RendererPtr renderer) {
