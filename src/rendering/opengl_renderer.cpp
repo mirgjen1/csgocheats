@@ -494,23 +494,24 @@ void OpenGLRenderer::draw_text(const Vector2& pos, const char* text, const Color
 }
 
 bool OpenGLRenderer::world_to_screen(const Vector3& world_pos, Vector2& screen_pos) const {
-    // Standard 4x4 Matrix projection
-    float w = current_view_matrix.data[3] * world_pos.x + 
-              current_view_matrix.data[7] * world_pos.y + 
-              current_view_matrix.data[11] * world_pos.z + 
+    // Standard Source Engine View-Projection Matrix (Row-Major)
+    // The 4th row (indices 12, 13, 14, 15) provides the W component
+    float w = current_view_matrix.data[12] * world_pos.x + 
+              current_view_matrix.data[13] * world_pos.y + 
+              current_view_matrix.data[14] * world_pos.z + 
               current_view_matrix.data[15];
 
     if (w < 0.01f) return false;
 
     float x = current_view_matrix.data[0] * world_pos.x + 
-              current_view_matrix.data[4] * world_pos.y + 
-              current_view_matrix.data[8] * world_pos.z + 
-              current_view_matrix.data[12];
+              current_view_matrix.data[1] * world_pos.y + 
+              current_view_matrix.data[2] * world_pos.z + 
+              current_view_matrix.data[3];
               
-    float y = current_view_matrix.data[1] * world_pos.x + 
+    float y = current_view_matrix.data[4] * world_pos.x + 
               current_view_matrix.data[5] * world_pos.y + 
-              current_view_matrix.data[9] * world_pos.z + 
-              current_view_matrix.data[13];
+              current_view_matrix.data[6] * world_pos.z + 
+              current_view_matrix.data[7];
 
     float inv_w = 1.0f / w;
     x *= inv_w;

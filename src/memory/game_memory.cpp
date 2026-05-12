@@ -187,17 +187,22 @@ uintptr_t GameMemory::get_entity_from_list(uint32_t index) {
     uintptr_t entity_list = client_base + offsets.entity_list;
     if (entity_list == 0) return 0;
     
-    // CS:GO Legacy entity list is an array of pointers separated by 0x10 bytes
+    // CS:GO Legacy entity list on Linux 64-bit uses 0x20 stride
     uintptr_t entity_ptr = memory_reader->read<uintptr_t>(
-        entity_list + (index * 0x10)
+        entity_list + (index * 0x20)
     );
     
-    if (index < 3) {
-        static int calls = 0;
-        if (calls < 5) {
-            fprintf(stdout, "[DEBUG] get_entity_from_list(%u): reading from 0x%lx, got 0x%lx\n", 
-                    index, entity_list + (index * 0x10), entity_ptr);
-            calls++;
+    if (entity_ptr != 0) {
+        // Basic sanity check: pointer should be in a reasonable range
+        if (entity_ptr < 0x1000 || entity_ptr > 0x7FFFFFFFFFFF) {
+            return 0;
+        }
+        
+        static int debug_count = 0;
+        if (debug_count < 3) {
+            fprintf(stdout, "[DEBUG] Entity[%u] found at 0x%lx (from 0x%lx)\n", 
+                    index, entity_ptr, entity_list + (index * 0x20));
+            debug_count++;
         }
     }
     

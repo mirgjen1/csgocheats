@@ -13,6 +13,13 @@ void EntityManager::update() {
     // Read all players from game memory
     entities = game_memory->read_players();
     
+    // Debug: Log entity count if changed
+    static size_t last_count = 0;
+    if (entities.size() != last_count) {
+        fprintf(stdout, "[EntityManager] Found %zu active entities\n", entities.size());
+        last_count = entities.size();
+    }
+    
     // Update view matrix in renderer
     if (renderer) {
         Matrix4x4 view_matrix = game_memory->read_view_matrix();
