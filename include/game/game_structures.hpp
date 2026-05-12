@@ -11,9 +11,9 @@
  */
 namespace offsets {
     // Static fallback offsets (used if signature scanning fails)
-    constexpr uintptr_t ENTITY_LIST = 0x22fbc78;
-    constexpr uintptr_t LOCAL_PLAYER = 0x22ec4d8;
-    constexpr uintptr_t VIEW_MATRIX = 0x2c83fa8;    
+    constexpr uintptr_t ENTITY_LIST = 0x2238468;
+    constexpr uintptr_t LOCAL_PLAYER = 0x222a7f8;
+    constexpr uintptr_t VIEW_MATRIX = 0x2213e40;
     
     // Netvars
     constexpr uintptr_t m_vecOrigin = 0x138;
@@ -31,9 +31,9 @@ namespace offsets {
     constexpr uint32_t BONE_RIGHT_FOOT = 80;
     
     // Signature patterns for dynamic offset detection
-    constexpr const char* LOCAL_PLAYER_SIG = "48 8B 05 ?? ?? ?? ?? 48 85 C0 74 0B";
-    constexpr const char* ENTITY_LIST_SIG = "48 8D 05 ?? ?? ?? ?? 48 8B 00 48 85 C0 74 ?? 48 8B 00";
-    constexpr const char* VIEW_MATRIX_SIG = "48 8D 05 ?? ?? ?? ?? 48 8D 3D ?? ?? ?? ?? 48 8D 35";
+    constexpr const char* LOCAL_PLAYER_SIG = "48 8b 05 ? ? ? ? 48 85 c0 74 0b 48 8b 00";
+    constexpr const char* ENTITY_LIST_SIG = "48 8b 05 ? ? ? ? 48 8d 14 d0 48 8b 02";
+    constexpr const char* VIEW_MATRIX_SIG = "48 8d 05 ? ? ? ? 48 8b 00 48 85 c0 74 08";
 }
 
 /**

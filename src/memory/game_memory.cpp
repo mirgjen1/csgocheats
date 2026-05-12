@@ -21,21 +21,26 @@ std::vector<PlayerEntity> GameMemory::read_players() {
     if (client_base == 0) return players;
 
     const auto& offsets = OffsetManager::instance().get();
-    uintptr_t entity_list_addr = client_base + offsets.entity_list;
     
-    // In CS:GO Legacy Linux 64-bit, the entity list is often a bit more complex,
-    // but for simplicity we'll try the direct access first.
-    
-    for (uint32_t i = 0; i < 64; ++i) {
+    // Only scan 32 players to save CPU during debugging
+    for (uint32_t i = 0; i < 32; ++i) {
         uintptr_t entity_ptr = get_entity_from_list(i);
-        if (entity_ptr == 0) continue;
+        
+        // CRITICAL: Validate pointer before reading.
+        // Game pointers on 64-bit Linux are usually above 0x100000000000
+        if (entity_ptr < 0x700000000000 || entity_ptr > 0x7fffffffffff) continue;
         
         uint32_t health = read_player_health(entity_ptr);
         if (health == 0 || health > 100) continue;
         
         PlayerEntity player = read_player_entity(entity_ptr, i);
         if (player.is_alive()) {
-            player.bounding_box = calculate_aabb(entity_ptr);
+            // Simplified box to prevent lag from reading too many bones
+            Vector3 pos = player.position;
+            player.bounding_box = AABB(
+                Vector3(pos.x - 15.0f, pos.y - 15.0f, pos.z - 35.0f),
+                Vector3(pos.x + 15.0f, pos.y + 15.0f, pos.z + 35.0f)
+            );
             players.push_back(player);
         }
     }
@@ -187,9 +192,9 @@ uintptr_t GameMemory::get_entity_from_list(uint32_t index) {
     uintptr_t entity_list = client_base + offsets.entity_list;
     if (entity_list == 0) return 0;
     
-    // CS:GO Legacy entity list on Linux 64-bit uses 0x10 stride
+    // CS:GO Legacy / CS2 on Linux 64-bit uses 0x20 stride
     uintptr_t entity_ptr = memory_reader->read<uintptr_t>(
-        entity_list + (index * 0x10)
+        entity_list + (index * 0x20)
     );
     
     if (entity_ptr != 0) {
