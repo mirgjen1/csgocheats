@@ -60,6 +60,11 @@ public:
     using RenderCallback = std::function<void(RendererPtr)>;
     void set_render_callback(RenderCallback callback);
     
+    /**
+     * Get renderer instance
+     */
+    RendererPtr get_renderer() { return renderer; }
+    
 private:
     Config config;
     MemoryReaderPtr memory_reader;

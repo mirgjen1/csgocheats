@@ -17,6 +17,7 @@ set(SOURCES
     src/rendering/primitives.cpp
     src/rendering/dx11_renderer.cpp
     src/entity/entity_manager.cpp
+    src/rendering/ui_backend.cpp
 )
 
 # Add OpenGL renderer on Linux

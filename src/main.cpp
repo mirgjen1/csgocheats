@@ -2,6 +2,7 @@
 #include <memory>
 #include <thread>
 #include "overlay/overlay.hpp"
+#include "rendering/ui_backend.hpp"
 
 /**
  * Example usage of the CS2 overlay system
@@ -36,15 +37,21 @@ int main() {
     std::cout << "Overlay initialized successfully!" << std::endl;
     std::cout << "Resolution: " << config.window_width << "x" << config.window_height << std::endl;
     
+    // Create UI backend
+    auto ui_backend = std::make_shared<UIBackend>(overlay->get_renderer());
+    
     // Set up custom render callback for additional UI elements
-    overlay->set_render_callback([](RendererPtr renderer) {
-        // Draw custom elements here
-        // Example: Draw crosshair, FPS counter, etc.
+    overlay->set_render_callback([ui_backend, entity_manager](RendererPtr renderer) {
+        // Update UI state (mocking delta time)
+        ui_backend->update(0.016f);
+        
+        // Draw UI elements
+        ui_backend->draw_status_panel(60, entity_manager->entity_count());
+        ui_backend->render();
+        
+        // Draw crosshair
         Vector2 center(renderer->get_width() / 2.0f, renderer->get_height() / 2.0f);
         renderer->draw_circle(center, 5.0f, Color(0, 255, 0, 255));
-        
-        // Draw info text
-        renderer->draw_text(Vector2(10, 10), "CS:GO Legacy Overlay - Press any key in console to exit", Color(255, 255, 255, 255));
     });
     
     // Run overlay in background thread

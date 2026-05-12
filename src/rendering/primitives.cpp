@@ -138,6 +138,23 @@ void PlayerVisualizer::draw_player(
         player.max_health
     );
     
+    // Draw health text
+    char health_text[16];
+    snprintf(health_text, sizeof(health_text), "%d HP", player.health);
+    Vector2 text_pos = health_bar_pos;
+    text_pos.x += HealthBarVisualizer::BAR_WIDTH + 5.0f;
+    text_pos.y -= 2.0f;
+    renderer->draw_text(text_pos, health_text, Color(255, 255, 255, 255));
+    
+    // Draw name if requested
+    if (draw_name) {
+        char name_text[32];
+        snprintf(name_text, sizeof(name_text), "Player %u", player.entity_id);
+        Vector2 name_pos = health_bar_pos;
+        name_pos.y -= 12.0f;
+        renderer->draw_text(name_pos, name_text, box_color);
+    }
+    
     // Optional: Draw team color indicator
     if (!local_player) {
         Vector2 corner_pos = health_bar_pos;
