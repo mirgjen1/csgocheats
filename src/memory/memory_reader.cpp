@@ -90,46 +90,39 @@ pid_t LinuxMemoryReader::find_process_by_name(const char* process_name) {
     }
     
     struct dirent* entry;
-    while ((entry = readdir(proc_dir)) != nullptr) {
-        // Check if directory name is all digits (process ID)
-        if (entry->d_type != DT_DIR) continue;
+    DIR* dir = opendir("/proc");
+    if (!dir) return -1;
+
+    struct dirent* entry;
+    while ((entry = readdir(dir)) != nullptr) {
+        if (!isdigit(entry->d_name[0])) continue;
+        pid_t pid = std::stoi(entry->d_name);
         
-        bool is_pid = true;
-        for (const char* p = entry->d_name; *p; ++p) {
-            if (*p < '0' || *p > '9') {
-                is_pid = false;
-                break;
+        // Read maps to see if this process has the game loaded
+        char maps_path[256];
+        snprintf(maps_path, sizeof(maps_path), "/proc/%d/maps", pid);
+        FILE* maps_f = fopen(maps_path, "r");
+        if (maps_f) {
+            char line[512];
+            bool found = false;
+            while (fgets(line, sizeof(line), maps_f)) {
+                if (strstr(line, "client_client.so") || strstr(line, "libclient.so") || strstr(line, "client.so")) {
+                    found = true;
+                    break;
+                }
             }
-        }
-        
-        if (!is_pid) continue;
-        
-        // Read the command line from /proc/[pid]/comm
-        pid_t pid = atoi(entry->d_name);
-        char comm_path[256];
-        snprintf(comm_path, sizeof(comm_path), "/proc/%d/comm", pid);
-        
-        FILE* comm_file = fopen(comm_path, "r");
-        if (!comm_file) continue;
-        
-        char comm_buffer[256];
-        if (fgets(comm_buffer, sizeof(comm_buffer), comm_file)) {
-            // Remove newline
-            char* newline = strchr(comm_buffer, '\n');
-            if (newline) *newline = '\0';
+            fclose(maps_f);
             
-            if (strstr(comm_buffer, process_name)) {
-                fclose(comm_file);
-                closedir(proc_dir);
-                fprintf(stdout, "Found process '%s' with PID %d\n", process_name, pid);
+            if (found) {
+                closedir(dir);
+                fprintf(stdout, "[MemoryReader] Found ACTIVE game process with PID %d\n", pid);
                 return pid;
             }
         }
-        fclose(comm_file);
     }
-    
-    closedir(proc_dir);
-    fprintf(stderr, "Process '%s' not found\n", process_name);
+
+    closedir(dir);
+    fprintf(stderr, "[MemoryReader] Could not find any process with game modules loaded. Make sure you are in a match!\n");
     return -1;
 }
 

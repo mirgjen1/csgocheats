@@ -27,16 +27,35 @@ bool OffsetManager::initialize(pid_t pid) {
 
     // Search for any module containing "client" and ending in ".so"
     std::string found_client;
-    for (const auto& mod : all_modules) {
-        std::string name = mod.name;
-        // Search for "client" in the module name (case insensitive-ish)
-        if (name.find("client") != std::string::npos && name.find(".so") != std::string::npos) {
-            // Priority for client_client.so or client.so
-            if (name == "client_client.so" || name == "client.so") {
+    // Priority list for CS:GO Legacy / CS2 modules
+    const std::vector<std::string> priorities = {
+        "client_client.so", 
+        "client_panorama_client.so",
+        "client.so",
+        "libclient.so"
+    };
+
+    for (const auto& target : priorities) {
+        for (const auto& mod : all_modules) {
+            if (mod.name == target) {
+                found_client = mod.name;
+                break;
+            }
+        }
+        if (!found_client.empty()) break;
+    }
+
+    // Fallback if priority names not found
+    if (found_client.empty()) {
+        for (const auto& mod : all_modules) {
+            std::string name = mod.name;
+            if (name == "steamclient.so" || name.find("libwayland") != std::string::npos || name.find("vaudio") != std::string::npos) {
+                continue;
+            }
+            if (name.find("client") != std::string::npos && name.find(".so") != std::string::npos) {
                 found_client = name;
                 break;
             }
-            found_client = name;
         }
     }
 
@@ -50,8 +69,8 @@ bool OffsetManager::initialize(pid_t pid) {
     
     client_module_name = found_client;
     const auto* client_info = scanner.get_module(found_client);
-    fprintf(stdout, "[OffsetManager] Using client module: %s (Base: 0x%lx, Size: %zu)\n", 
-            found_client.c_str(), client_info->base, client_info->size);
+    fprintf(stdout, "[OffsetManager] Using client module: %s (Base: 0x%lx, Path: %s)\n", 
+            found_client.c_str(), client_info->base, client_info->path.c_str());
 
     // Find Local Player
     SignatureScanner::Pattern local_player_pat(offsets::LOCAL_PLAYER_SIG, 3, true);
