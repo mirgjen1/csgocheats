@@ -15,12 +15,13 @@
 namespace offsets {
     // CS:GO Legacy (Source 1) Linux 64-bit offsets
     // Static fallback offsets (used if signature scanning fails)
-    constexpr uintptr_t ENTITY_LIST = 0x4E0102C;      // dwEntityList (Windows, for reference)
-    constexpr uintptr_t LOCAL_PLAYER = 0xDEB99C;       // dwLocalPlayer (Windows, for reference)
+    constexpr uintptr_t ENTITY_LIST = 0x6d9eef8;      // dwEntityList (Windows, for reference)
+    constexpr uintptr_t LOCAL_PLAYER = 0x22eceb0;       // dwLocalPlayer (Windows, for reference)
+    constexpr uintptr_t VIEW_MATRIX = 0x2c83fa8;    
     
     // Static Netvars (These rarely change in Legacy)
     constexpr uintptr_t PLAYER_POSITION = 0x138;      // m_vecOrigin
-    constexpr uintptr_t PLAYER_HEALTH = 0x448c3d19;        // m_iHealth
+    constexpr uintptr_t PLAYER_HEALTH = 0x100;        // m_iHealth
     constexpr uintptr_t PLAYER_TEAM = 0xF4;           // m_iTeamNum
     constexpr uintptr_t PLAYER_NAME = 0x304C;         // m_szCustomName
     constexpr uintptr_t PLAYER_BONE_MATRIX = 0x26A8;  // m_dwBoneMatrix

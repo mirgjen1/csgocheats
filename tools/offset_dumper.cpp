@@ -275,11 +275,14 @@ int main() {
     const ModuleInfo* engine = find_module(modules, "engine_client.so");
     
     if (!client) {
-        // Try alternate names
         client = find_module(modules, "client.so");
+        if (!client) client = find_module(modules, "libclient.so");
+        if (!client) client = find_module(modules, "client_client.so");
     }
     if (!engine) {
         engine = find_module(modules, "engine.so");
+        if (!engine) engine = find_module(modules, "libengine.so");
+        if (!engine) engine = find_module(modules, "engine_client.so");
     }
     
     if (client) {
