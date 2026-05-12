@@ -80,16 +80,16 @@ bool OffsetManager::initialize(pid_t pid) {
 
     // Apply discovered fallbacks if patterns failed
     if (current_offsets.local_player == 0) {
-        fprintf(stdout, "[OffsetManager] Falling back to hardcoded local_player: 0x22eceb0\n");
-        current_offsets.local_player = 0x22eceb0;
+        fprintf(stdout, "[OffsetManager] Falling back to hardcoded local_player: 0x%lx\n", offsets::LOCAL_PLAYER);
+        current_offsets.local_player = offsets::LOCAL_PLAYER;
     }
     if (current_offsets.entity_list == 0) {
-        fprintf(stdout, "[OffsetManager] Falling back to hardcoded entity_list: 0x6d9eef8\n");
-        current_offsets.entity_list = 0x6d9eef8;
+        fprintf(stdout, "[OffsetManager] Falling back to hardcoded entity_list: 0x%lx\n", offsets::ENTITY_LIST);
+        current_offsets.entity_list = offsets::ENTITY_LIST;
     }
     if (current_offsets.view_matrix == 0) {
-        fprintf(stdout, "[OffsetManager] Falling back to hardcoded view_matrix: 0x2c83fa8\n");
-        current_offsets.view_matrix = 0x2c83fa8;
+        fprintf(stdout, "[OffsetManager] Falling back to hardcoded view_matrix: 0x%lx\n", offsets::VIEW_MATRIX);
+        current_offsets.view_matrix = offsets::VIEW_MATRIX;
     }
 
     ready = true;

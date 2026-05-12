@@ -20,7 +20,7 @@ namespace offsets {
     
     // Static Netvars (These rarely change in Legacy)
     constexpr uintptr_t PLAYER_POSITION = 0x138;      // m_vecOrigin
-    constexpr uintptr_t PLAYER_HEALTH = 0x100;        // m_iHealth
+    constexpr uintptr_t PLAYER_HEALTH = 0x448c3d19;        // m_iHealth
     constexpr uintptr_t PLAYER_TEAM = 0xF4;           // m_iTeamNum
     constexpr uintptr_t PLAYER_NAME = 0x304C;         // m_szCustomName
     constexpr uintptr_t PLAYER_BONE_MATRIX = 0x26A8;  // m_dwBoneMatrix
