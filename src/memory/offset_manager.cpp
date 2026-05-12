@@ -78,11 +78,12 @@ bool OffsetManager::initialize(pid_t pid) {
     current_offsets.view_matrix = scanner.find_pattern(found_client, view_matrix_pat);
     
     if (!current_offsets.view_matrix) {
-        for (const auto& mod : engine_mods) {
-            if (scanner.get_module(mod)) {
-                current_offsets.view_matrix = scanner.find_pattern(mod, view_matrix_pat);
+        for (const auto& mod : all_modules) {
+            if (mod.name.find("engine") != std::string::npos && mod.name.find(".so") != std::string::npos) {
+                current_offsets.view_matrix = scanner.find_pattern(mod.name, view_matrix_pat);
                 if (current_offsets.view_matrix) {
-                    fprintf(stdout, "[OffsetManager] Found view_matrix in %s: 0x%lx\n", mod.c_str(), current_offsets.view_matrix);
+                    fprintf(stdout, "[OffsetManager] SUCCESS: Found view_matrix in %s: 0x%lx\n", 
+                            mod.name.c_str(), current_offsets.view_matrix);
                     break;
                 }
             }

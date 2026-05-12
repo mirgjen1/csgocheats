@@ -59,8 +59,7 @@ int main() {
         overlay->run();
     });
     
-    // Get entity manager for monitoring
-    auto entity_manager = overlay->get_entity_manager();
+    // Monitoring will be done via the captured entity_manager in the callback or via overlay status
     
     std::cout << "\nOverlay is running!" << std::endl;
     std::cout << "Press any key to stop..." << std::endl;

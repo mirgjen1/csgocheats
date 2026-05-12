@@ -25,9 +25,9 @@ if(UNIX AND NOT APPLE)
     list(APPEND SOURCES src/rendering/opengl_renderer.cpp)
 endif()
 
-add_executable(cs2overlay ${SOURCES})
+add_executable(csgooverlay.exe ${SOURCES})
 
-target_include_directories(cs2overlay PRIVATE
+target_include_directories(csgooverlay.exe PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
@@ -38,8 +38,7 @@ if(UNIX AND NOT APPLE)
     find_package(GLEW REQUIRED)
     find_package(glfw3 REQUIRED)
     
-    target_link_libraries(cs2overlay PRIVATE 
-        X11 
+    target_link_libraries(csgooverlay.exe PRIVATE 
         OpenGL::OpenGL
         GLEW::GLEW
         glfw

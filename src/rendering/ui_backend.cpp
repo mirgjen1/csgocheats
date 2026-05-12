@@ -7,7 +7,7 @@ UIBackend::UIBackend(RendererPtr renderer) : renderer(renderer) {
 void UIBackend::draw_watermark() {
     if (!renderer) return;
     
-    const char* title = "ANTIGRAVITY CS2 OVERLAY v1.0";
+    const char* title = "ANTIGRAVITY CS:GO OVERLAY v1.0";
     Vector2 pos(20, 20);
     
     // Draw shadow
