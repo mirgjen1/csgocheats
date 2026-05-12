@@ -52,3 +52,18 @@ elseif(WIN32)
         d3dcompiler
     )
 endif()
+
+# Offset Finder Tool
+add_executable(offset_finder
+    src/offset_finder_tool.cpp
+    src/memory/offset_finder.cpp
+)
+
+target_include_directories(offset_finder PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+if(UNIX AND NOT APPLE)
+    target_link_libraries(offset_finder PRIVATE X11)
+endif()
+
