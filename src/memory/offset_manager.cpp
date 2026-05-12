@@ -25,21 +25,26 @@ bool OffsetManager::initialize(pid_t pid) {
         fprintf(stdout, "[OffsetManager] Module: %s at 0x%lx\n", all_modules[i].name.c_str(), all_modules[i].base);
     }
 
-    // CS:GO Legacy Linux 64-bit module names
-    // It can be client_client.so or client.so depending on build
-    const std::vector<std::string> client_mods = {"client_client.so", "client.so", "libclient.so"};
-    const std::vector<std::string> engine_mods = {"engine_client.so", "engine.so", "libengine.so"};
-    
+    // Search for any module containing "client" and ending in ".so"
     std::string found_client;
-    for (const auto& mod : client_mods) {
-        if (scanner.get_module(mod)) {
-            found_client = mod;
-            break;
+    for (const auto& mod : all_modules) {
+        std::string name = mod.name;
+        // Search for "client" in the module name (case insensitive-ish)
+        if (name.find("client") != std::string::npos && name.find(".so") != std::string::npos) {
+            // Priority for client_client.so or client.so
+            if (name == "client_client.so" || name == "client.so") {
+                found_client = name;
+                break;
+            }
+            found_client = name;
         }
     }
 
     if (found_client.empty()) {
-        fprintf(stderr, "[OffsetManager] Could not find any client module!\n");
+        fprintf(stderr, "[OffsetManager] Could not find any client module! Printing all modules:\n");
+        for (const auto& mod : all_modules) {
+            fprintf(stderr, "  - %s\n", mod.name.c_str());
+        }
         return false;
     }
     

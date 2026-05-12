@@ -2,21 +2,16 @@
 
 #include <cstdint>
 #include <cstring>
+#include <string>
 #include <glm/glm.hpp>
 
 /**
- * Game memory offsets for CS2
- * Source: https://github.com/frk1/hazedumper
- * Last updated: May 2026
- * 
- * Note: These are community-maintained offsets and may change with game updates.
- * If offsets stop working, check the hazedumper repository for updates.
+ * Game memory offsets for CS:GO Legacy (Source 1) Linux 64-bit
  */
 namespace offsets {
-    // CS:GO Legacy (Source 1) Linux 64-bit offsets
     // Static fallback offsets (used if signature scanning fails)
-    constexpr uintptr_t ENTITY_LIST = 0x6d9eef8;      // dwEntityList (Windows, for reference)
-    constexpr uintptr_t LOCAL_PLAYER = 0x22eceb0;       // dwLocalPlayer (Windows, for reference)
+    constexpr uintptr_t ENTITY_LIST = 0x22fbc78;
+    constexpr uintptr_t LOCAL_PLAYER = 0x22ec4d8;
     constexpr uintptr_t VIEW_MATRIX = 0x2c83fa8;    
     
     // Static Netvars (These rarely change in Legacy)
@@ -56,6 +51,8 @@ struct Vector3 {
     Vector3 operator-(const Vector3& other) const {
         return Vector3(x - other.x, y - other.y, z - other.z);
     }
+    
+    Vector3 center() const { return *this; } // For compatibility
 };
 
 /**
@@ -91,7 +88,8 @@ struct AABB {
  * Screen space rectangle for 2D rendering
  */
 struct Rect2D {
-    float x, y, width, height;
+    float x, y;
+    float width, height;
     
     Rect2D() : x(0), y(0), width(0), height(0) {}
     Rect2D(float x, float y, float w, float h) : x(x), y(y), width(w), height(h) {}
@@ -104,36 +102,12 @@ struct Color {
     uint8_t r, g, b, a;
     
     Color() : r(255), g(255), b(255), a(255) {}
-    Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255)
-        : r(r), g(g), b(b), a(a) {}
+    Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) : r(r), g(g), b(b), a(a) {}
 };
 
 /**
- * Player entity structure
- */
-struct PlayerEntity {
-    uint32_t entity_id;
-    uint32_t health;
-    uint32_t max_health;
-    uint32_t team;
-    Vector3 position;
-    AABB bounding_box;
-    
-    bool is_alive() const { return health > 0; }
-    float health_percentage() const {
-        return max_health > 0 ? (static_cast<float>(health) / max_health) : 0.0f;
-    }
-};
-
-/**
- * Transform matrix (4x4)
+ * Matrix 4x4 for view-projection
  */
 struct Matrix4x4 {
     float data[16];
-    
-    Matrix4x4() { memset(data, 0, sizeof(data)); }
-    
-    Vector3 get_position() const {
-        return Vector3(data[12], data[13], data[14]);
-    }
 };
