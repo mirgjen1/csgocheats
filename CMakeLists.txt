@@ -16,6 +16,7 @@ set(SOURCES
     src/rendering/renderer.cpp
     src/rendering/primitives.cpp
     src/rendering/dx11_renderer.cpp
+    src/rendering/esp_ui.cpp
     src/entity/entity_manager.cpp
     src/rendering/ui_backend.cpp
 )

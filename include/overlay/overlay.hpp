@@ -7,6 +7,7 @@
 #include "memory/game_memory.hpp"
 #include "entity/entity_manager.hpp"
 #include "rendering/renderer.hpp"
+#include "rendering/esp_ui.hpp"
 
 #ifdef _WIN32
 class OverlayWindow;
@@ -55,6 +56,11 @@ public:
     EntityManagerPtr get_entity_manager();
     
     /**
+     * Get ESP UI for ESP configuration
+     */
+    ESPUIPtr get_esp_ui() { return esp_ui; }
+    
+    /**
      * Set custom render callback for additional elements
      */
     using RenderCallback = std::function<void(RendererPtr)>;
@@ -71,6 +77,7 @@ private:
     GameMemoryPtr game_memory;
     RendererPtr renderer;
     EntityManagerPtr entity_manager;
+    ESPUIPtr esp_ui;
     
 #ifdef _WIN32
     OverlayWindowPtr overlay_win;

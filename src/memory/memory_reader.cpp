@@ -96,14 +96,11 @@ pid_t LinuxMemoryReader::find_process_by_name(const char* process_name) {
     snprintf(manual_maps, sizeof(manual_maps), "/proc/%d/maps", manual_pid);
     if (access(manual_maps, F_OK) != -1) {
         fprintf(stdout, "[MemoryReader] Testing manual PID 10330...\n");
+        closedir(proc_dir);
         return manual_pid;
     }
 
-    DIR* dir = opendir("/proc");
-    if (!dir) return -1;
-
-    struct dirent* entry;
-    while ((entry = readdir(dir)) != nullptr) {
+    while ((entry = readdir(proc_dir)) != nullptr) {
         if (!isdigit(entry->d_name[0])) continue;
         pid_t pid = std::stoi(entry->d_name);
         
@@ -123,14 +120,14 @@ pid_t LinuxMemoryReader::find_process_by_name(const char* process_name) {
             fclose(maps_f);
             
             if (found) {
-                closedir(dir);
+                closedir(proc_dir);
                 fprintf(stdout, "[MemoryReader] Found ACTIVE game process with PID %d\n", pid);
                 return pid;
             }
         }
     }
 
-    closedir(dir);
+    closedir(proc_dir);
     fprintf(stderr, "[MemoryReader] Could not find any process with game modules loaded. Make sure you are in a match!\n");
     return -1;
 }

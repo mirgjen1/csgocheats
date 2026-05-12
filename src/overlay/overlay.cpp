@@ -66,6 +66,9 @@ bool Overlay::initialize(const Config& cfg) {
     entity_manager = std::make_shared<EntityManager>(game_memory, renderer);
     entity_manager->set_config(config.entity_config);
     
+    // Create ESP UI
+    esp_ui = std::make_shared<ESPUI>(renderer);
+    
     running = true;
     return true;
 }
@@ -126,6 +129,13 @@ void Overlay::render_frame() {
     // Render entities
     if (entity_manager) {
         entity_manager->render();
+    }
+    
+    // Render ESP overlays
+    if (esp_ui && entity_manager) {
+        esp_ui->render_esp(entity_manager->get_entities());
+        esp_ui->render_menu();
+        esp_ui->render_debug(entity_manager->entity_count(), 60.0f); // TODO: Track actual FPS
     }
     
     // Call custom render callback if set
