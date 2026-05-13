@@ -28,10 +28,8 @@ set(SOURCES
     thirdparty/imgui/backends/imgui_impl_opengl3.cpp
 )
 
-# Add OpenGL renderer on Linux
-if(UNIX AND NOT APPLE)
-    list(APPEND SOURCES src/rendering/opengl_renderer.cpp)
-endif()
+# Note: We don't add the old external opengl_renderer.cpp here 
+# as it's not needed for the internal cheat and causes GLFW conflicts.
 
 add_library(csgocheat SHARED ${SOURCES})
 
