@@ -67,7 +67,7 @@ extern "C" {
             g_esp_ui->update(delta_time);
             
             // Render ESP
-            auto players = g_entity_manager->get_players();
+            auto players = g_entity_manager->get_entities();
             g_esp_ui->render_esp(players);
             
             // Render Menu (if open)
