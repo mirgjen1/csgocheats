@@ -31,6 +31,11 @@ extern "C" {
         if (!g_initialized) {
             printf("[Hooks] Initializing internal cheat components...\n");
             
+            // Initialize offsets first
+            if (!OffsetManager::instance().initialize(0)) {
+                printf("[Hooks] ERROR: Failed to initialize OffsetManager!\n");
+            }
+            
             // Initialize memory reader (internal)
             auto reader = std::make_shared<InternalMemoryReader>();
             g_game_memory = std::make_shared<GameMemory>(reader);

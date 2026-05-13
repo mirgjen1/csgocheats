@@ -7,11 +7,27 @@
 GameMemory::GameMemory(MemoryReaderPtr reader) 
     : memory_reader(reader) {
     // In Linux, we need the base address of the client module
+    std::string mod_name = OffsetManager::instance().get_client_module_name();
+    
     auto linux_reader = std::dynamic_pointer_cast<LinuxMemoryReader>(reader);
     if (linux_reader) {
-        std::string mod_name = OffsetManager::instance().get_client_module_name();
         client_base = linux_reader->get_module_base(mod_name.c_str());
-        fprintf(stdout, "[GameMemory] %s base: 0x%lx\n", mod_name.c_str(), client_base);
+    } else {
+        // Internal mode: Find module base in our own process
+        // We can use the SignatureScanner to find it from /proc/self/maps
+        SignatureScanner scanner(0); // 0 means self
+        if (scanner.load_modules()) {
+            const auto* mod = scanner.get_module(mod_name.c_str());
+            if (mod) {
+                client_base = mod->base;
+            }
+        }
+    }
+    
+    if (client_base != 0) {
+        printf("[GameMemory] %s base found at: 0x%lx\n", mod_name.c_str(), client_base);
+    } else {
+        printf("[GameMemory] ERROR: Could not find %s base address!\n", mod_name.c_str());
     }
 }
 
