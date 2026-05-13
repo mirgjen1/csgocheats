@@ -43,23 +43,22 @@ target_include_directories(csgocheat PRIVATE
 if(UNIX AND NOT APPLE)
     # Linux/Unix dependencies
     find_package(OpenGL REQUIRED)
-    find_package(GLEW REQUIRED)
     find_package(SDL2 REQUIRED)
     
+    # We include SDL2 for headers, but don't link it hard to avoid conflicts.
+    # We also link libstdc++ and libgcc statically to avoid runtime version mismatches.
     target_link_libraries(csgocheat PRIVATE 
         OpenGL::OpenGL
-        GLEW::GLEW
-        SDL2::SDL2
         dl
+        -static-libstdc++
+        -static-libgcc
+    )
+
+    target_include_directories(csgocheat PRIVATE
+        ${SDL2_INCLUDE_DIRS}
     )
 elseif(WIN32)
-    target_link_libraries(cs2overlay PRIVATE 
-        User32 
-        Gdi32 
-        d3d11 
-        dxgi 
-        d3dcompiler
-    )
+    # Windows logic...
 endif()
 
 # Offset Finder Tool
@@ -75,4 +74,3 @@ target_include_directories(offset_finder PRIVATE
 if(UNIX AND NOT APPLE)
     target_link_libraries(offset_finder PRIVATE X11)
 endif()
-

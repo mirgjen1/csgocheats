@@ -1,7 +1,6 @@
 #include "rendering/imgui_renderer.hpp"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"
-#include <GL/glew.h>
 
 ImGuiRenderer::ImGuiRenderer() : initialized(false) {}
 
@@ -20,12 +19,8 @@ bool ImGuiRenderer::initialize(uint32_t width, uint32_t height) {
 }
 
 void ImGuiRenderer::setup_imgui(SDL_Window* window) {
-    // Initialize GLEW first
-    glewExperimental = GL_TRUE;
-    GLenum err = glewInit();
-    if (err != GLEW_OK) {
-        printf("[Renderer] Failed to initialize GLEW: %s\n", glewGetErrorString(err));
-    }
+    // We don't use GLEW here to avoid conflicts with game libraries.
+    // The ImGui OpenGL3 backend has its own internal loader.
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -35,7 +30,6 @@ void ImGuiRenderer::setup_imgui(SDL_Window* window) {
     ImGui::StyleColorsDark();
     
     // Initialize backends
-    // Note: The context must be current here!
     ImGui_ImplSDL2_InitForOpenGL(window, SDL_GL_GetCurrentContext());
     ImGui_ImplOpenGL3_Init("#version 130");
     
