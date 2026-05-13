@@ -1,6 +1,6 @@
 #pragma once
 
-#include "memory_reader.hpp"
+#include "memory/memory_reader.hpp"
 #include <cstring>
 
 /**
@@ -17,7 +17,6 @@ public:
         std::memcpy(buffer, reinterpret_cast<void*>(address), size);
         return size;
     }
-    
 };
 
 using InternalMemoryReaderPtr = std::shared_ptr<InternalMemoryReader>;
