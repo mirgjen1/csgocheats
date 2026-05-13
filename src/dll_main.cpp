@@ -1,6 +1,4 @@
-#include <SDL2/SDL.h>
-#include <GL/glew.h>
-#include <iostream>
+#include <cstdio>
 #include "hooks.hpp"
 
 /**
@@ -8,12 +6,12 @@
  */
 __attribute__((constructor))
 void init_cheat() {
-    std::cout << "[Cheat] Shared library loaded. Initializing hooks..." << std::endl;
+    printf("[Cheat] Shared library loaded. Initializing hooks...\n");
     if (Hooks::initialize()) {
-        std::cout << "[Cheat] Hooks initialized successfully." << std::endl;
-        std::cout << "[Cheat] Press INSERT in-game to toggle menu." << std::endl;
+        printf("[Cheat] Hooks initialized successfully.\n");
+        printf("[Cheat] Press INSERT in-game to toggle menu.\n");
     } else {
-        std::cerr << "[Cheat] Failed to initialize hooks!" << std::endl;
+        fprintf(stderr, "[Cheat] Failed to initialize hooks!\n");
     }
 }
 

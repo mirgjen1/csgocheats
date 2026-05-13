@@ -26,8 +26,10 @@ extern "C" {
             original_SDL_GL_SwapWindow = (SDL_GL_SwapWindow_t)dlsym(RTLD_NEXT, "SDL_GL_SwapWindow");
         }
         
+        if (!original_SDL_GL_SwapWindow) return; // Fallback if dlsym fails
+        
         if (!g_initialized) {
-            std::cout << "[Hooks] Initializing internal cheat components..." << std::endl;
+            printf("[Hooks] Initializing internal cheat components...\n");
             
             // Initialize memory reader (internal)
             auto reader = std::make_shared<InternalMemoryReader>();
@@ -47,7 +49,7 @@ extern "C" {
             g_entity_manager = std::make_shared<EntityManager>(g_game_memory, g_renderer);
             
             g_initialized = true;
-            std::cout << "[Hooks] Initialization complete." << std::endl;
+            printf("[Hooks] Initialization complete.\n");
         }
         
         // Render loop
@@ -89,6 +91,8 @@ extern "C" {
             original_SDL_PollEvent = (SDL_PollEvent_t)dlsym(RTLD_NEXT, "SDL_PollEvent");
         }
         
+        if (!original_SDL_PollEvent) return 0; // Should not happen
+        
         int result = original_SDL_PollEvent(event);
         
         if (g_initialized && result && event) {
@@ -98,11 +102,6 @@ extern "C" {
             // Toggle menu with Insert key
             if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_INSERT) {
                 g_esp_ui->toggle_ui();
-            }
-            
-            // If menu is open, we might want to block some events from the game
-            if (g_esp_ui->get_ui_state() == ESPUI::UIState::MENU) {
-                // For now, just let everything through, but ImGui will capture its own input
             }
         }
         
