@@ -1,4 +1,5 @@
 #include "overlay/overlay.hpp"
+#include "memory/offset_manager.hpp"
 
 #ifdef _WIN32
 #include "rendering/dx11_renderer.hpp"
@@ -25,6 +26,20 @@ bool Overlay::initialize(const Config& cfg) {
     
     if (!memory_reader) {
         return false;
+    }
+    
+    // Initialize OffsetManager to discover game offsets
+    auto linux_reader = std::dynamic_pointer_cast<LinuxMemoryReader>(memory_reader);
+    if (linux_reader) {
+        pid_t game_pid = linux_reader->get_process_id();
+        fprintf(stdout, "[Overlay] Initializing offsets for PID %d...\n", game_pid);
+        
+        if (!OffsetManager::instance().initialize(game_pid)) {
+            fprintf(stderr, "[Overlay] WARNING: Failed to initialize offsets (offsets will be 0)\n");
+            fprintf(stderr, "[Overlay] Consider using the offset_finder tool: sudo ./offset_finder %d\n", game_pid);
+        } else {
+            fprintf(stdout, "[Overlay] Successfully initialized game offsets\n");
+        }
     }
     
     // Create game memory interface

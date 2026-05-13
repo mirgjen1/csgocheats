@@ -86,6 +86,11 @@ public:
      */
     uintptr_t get_module_base(const char* module_name);
     
+    /**
+     * Get the process ID
+     */
+    pid_t get_process_id() const { return process_id; }
+    
 private:
     int mem_fd = -1;
     std::shared_ptr<SignatureScanner> scanner;

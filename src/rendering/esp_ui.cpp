@@ -1,4 +1,5 @@
 #include "rendering/esp_ui.hpp"
+#include "imgui.h"
 #include <cstdio>
 #include <cmath>
 #include <algorithm>
@@ -265,46 +266,36 @@ void ESPUI::render_skeleton(const PlayerEntity& entity, const Color& color) {
 }
 
 void ESPUI::render_menu() {
-    if (!renderer || menu_animation <= 0.0f) return;
+    if (!menu_open) return;
     
-    // Apply animation to menu position
-    int menu_x = 10 + static_cast<int>(-150 * (1.0f - menu_animation));
+    ImGui::Begin("ESP SETTINGS", &menu_open);
     
-    // Semi-transparent background
-    Rect2D menu_bg(menu_x, 10, 200, 300);
-    renderer->draw_filled_rect(menu_bg, Color(20, 20, 20, 180));
-    renderer->draw_box_2d(menu_bg, Color(100, 150, 255, 255), 2.0f);
+    if (ImGui::Checkbox("Draw Boxes", &config.draw_boxes)) {}
+    if (ImGui::Checkbox("Health Bars", &config.draw_health_bars)) {}
+    if (ImGui::Checkbox("Player Names", &config.draw_player_names)) {}
+    if (ImGui::Checkbox("Snaplines", &config.draw_snaplines)) {}
+    if (ImGui::Checkbox("Distance", &config.draw_distance)) {}
+    if (ImGui::Checkbox("Enemies Only", &config.render_enemies_only)) {}
     
-    // Title
-    renderer->draw_text(Vector2(menu_x + 10, 15), "ESP SETTINGS", Color(100, 150, 255, 255));
+    ImGui::Separator();
     
-    // Menu items
-    int y_offset = 40;
-    const char* menu_items[] = {
-        config.draw_boxes ? "[✓] Draw Boxes" : "[ ] Draw Boxes",
-        config.draw_health_bars ? "[✓] Health Bars" : "[ ] Health Bars",
-        config.draw_player_names ? "[✓] Player Names" : "[ ] Player Names",
-        config.draw_snaplines ? "[✓] Snaplines" : "[ ] Snaplines",
-        config.draw_distance ? "[✓] Distance" : "[ ] Distance",
-        config.render_enemies_only ? "[✓] Enemies Only" : "[ ] Enemies Only",
-        "Save Config",
-        "Load Config",
-        "Reset Defaults",
-        "Close Menu"
-    };
-    
-    const int menu_item_count = sizeof(menu_items) / sizeof(menu_items[0]);
-    
-    for (int i = 0; i < menu_item_count; ++i) {
-        Color text_color = (i == selected_menu_item) ? Color(255, 200, 0, 255) : Color(200, 200, 200, 255);
-        
-        if (i == selected_menu_item) {
-            Rect2D highlight(menu_x + 5, 30 + y_offset + i * 20 - 2, 190, 18);
-            renderer->draw_filled_rect(highlight, Color(100, 100, 100, 100));
-        }
-        
-        renderer->draw_text(Vector2(menu_x + 10, 35 + y_offset + i * 20), menu_items[i], text_color);
+    if (ImGui::Button("Save Config")) {
+        config.save_to_file("/tmp/csgocheat_esp_config.txt");
     }
+    ImGui::SameLine();
+    if (ImGui::Button("Load Config")) {
+        config.load_from_file("/tmp/csgocheat_esp_config.txt");
+    }
+    
+    if (ImGui::Button("Reset Defaults")) {
+        reset_to_defaults();
+    }
+    
+    if (ImGui::Button("Close Menu")) {
+        menu_open = false;
+    }
+    
+    ImGui::End();
 }
 
 void ESPUI::render_debug(size_t entity_count, float fps) {
