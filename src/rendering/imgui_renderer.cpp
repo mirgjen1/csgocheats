@@ -20,6 +20,13 @@ bool ImGuiRenderer::initialize(uint32_t width, uint32_t height) {
 }
 
 void ImGuiRenderer::setup_imgui(SDL_Window* window) {
+    // Initialize GLEW first
+    glewExperimental = GL_TRUE;
+    GLenum err = glewInit();
+    if (err != GLEW_OK) {
+        printf("[Renderer] Failed to initialize GLEW: %s\n", glewGetErrorString(err));
+    }
+
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
