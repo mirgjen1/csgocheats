@@ -103,7 +103,7 @@ cmake -DCMAKE_BUILD_TYPE=Release ..
 cmake --build . --config Release
 
 # Run
-./csgooverlay (sudo when in linux to properly read memory and the process csgo_linux64)
+./csgooverlay # (sudo when in linux to properly read memory and the process csgo_linux64)
 ```
 
 ## Usage
