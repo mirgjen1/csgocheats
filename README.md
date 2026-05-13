@@ -1,4 +1,4 @@
-# CS2 External Overlay Framework
+# CS:GO External Overlay Framework
 
 A conceptual C++ framework for building external game overlays with real-time entity rendering, AABB visualization, and dynamic health bar updates. This project demonstrates core graphics programming and game memory access concepts.
 
